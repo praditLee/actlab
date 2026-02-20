@@ -1,0 +1,557 @@
+---
+// ส่วนนี้คือ Server Script (จะไม่ทำงานตอนเปลี่ยนหน้าใน Client)
+import "../styles/global.css";
+---
+
+<div id="assessment-widget" class="w-full mx-auto font-sans">
+  <div
+    id="quiz-view"
+    class="bg-[#B4E489] -mx-10 md:mx-auto rounded-none md:rounded-3xl overflow-hidden shadow-xl px-6 md:px-8"
+  >
+    <div class="relative pb-0 flex flex-col items-center text-center">
+      <div class="w-full mb-[-200px] overflow-hidden">
+        <img
+          id="q-image"
+          src=""
+          alt="Question Image"
+          class="w-full h-full object-contain crop-image-top"
+        />
+      </div>
+    </div>
+
+    <div class="bg-[#B4E489] p-2 md:p-6 mt-16 md:-mt-[100px] pb-8">
+      <div id="options-container" class="flex flex-col gap-3"></div>
+
+      <div class="flex justify-between items-center mt-8 px-2">
+        <button
+          id="btn-prev"
+          class="text-sm px-6 py-2 rounded-full bg-white/40 hover:bg-white/60 text-black font-bold disabled:opacity-0 transition-all"
+        >
+          ← ย้อนกลับ
+        </button>
+
+        <span id="step-indicator" class="font-bold text-black/60">1 / 9</span>
+
+        <button
+          id="btn-next"
+          class="text-sm px-6 py-2 rounded-full bg-black text-white hover:bg-gray-800 font-bold shadow-lg transition-all"
+        >
+          ถัดไป →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="result-view"
+    class="hidden bg-[#B4E489] -mx-10 md:mx-auto rounded-none md:rounded-3xl overflow-hidden shadow-xl p-6 md:p-8 text-center"
+  >
+    <h2 class="text-3xl font-bold text-[#A3D983] mb-6">สรุปผลการประเมิน</h2>
+    <div class="w-full max-w-md mx-auto mb-8">
+      <canvas id="radarChart" class="w-full max-w-md mx-auto"></canvas>
+    </div>
+    <div id="feedback-box" class="p-6 rounded-xl bg-gray-50 text-left"></div>
+    <button
+      onclick="window.restartQuiz()"
+      class="mt-8 px-8 py-3 bg-white text-black font-bold rounded-full hover:brightness-110 transition"
+    >
+      ทำแบบประเมินอีกครั้ง
+    </button>
+  </div>
+</div>
+
+<style>
+  .crop-image-top {
+    /*
+     * clip-path: inset(Top Right Bottom Left);
+     * ค่า Bottom 50% คือการตัดส่วนล่างออกไป 50% ของความสูงภาพ
+     */
+    clip-path: inset(0 0 45% 0);
+  }
+</style>
+
+<script>
+  import Chart from "chart.js/auto";
+
+  const questions = [
+    {
+      id: 1,
+      title: "1. ภาวะภายใน",
+      image: "/images/AL_10_02.png",
+      options: [
+        {
+          score: 0,
+          text: "ยังยึดติดกับความเป็นกลุ่มตัวเอง  มองความสำเร็จความล้มเหลวเป็นของกลุ่มตน ไม่ได้มองเป็นเครือข่าย",
+          color: "bg-white",
+        },
+        {
+          score: 1,
+          text: "พร้อมเผชิญกับการถูกปฏิเสธ ความขัดแย้งหรือการวิจารณ์ภายในเครือข่าย",
+          color: "bg-[#EFE5C2]",
+        }, // สีเหลืองอ่อน
+        {
+          score: 2,
+          text: "มองเห็นความสำเร็จและความล้มเหลวเป็นของเครือข่าย พร้อมจะถอดบทเรียนร่วมกัน ไม่โยนความผิดให้คนอื่นหรือปกป้องตัวเอง",
+          color: "bg-[#A7C7E7]",
+        }, // สีฟ้า
+        {
+          score: 3,
+          text: "ดำรงตนเป็นกลางในการจัดการความขัดแย้ง ไม่ยึดติดกับเครือข่ายว่าต้องอยู่ตลอดไป มองเห็นว่าเครือข่ายเกิดขึ้น ตั้งอยู่และดับไปได้เสมอ",
+          color: "bg-[#8B8BF7]",
+        }, // สีม่วง
+      ],
+    },
+    {
+      id: 2,
+      title: "2. เข้าใจประเด็น",
+      image: "/images/AL_10_03.png",
+      options: [
+        { score: 0, text: "เข้าใจแค่หัวข้อ", color: "bg-white" },
+        {
+          score: 1,
+          text: "มีข้อมูลพื้นฐานเบื้องต้น สามารถพูดคุยแลกเปลี่ยนกับสมาชิกในเครือข่ายได้",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "มีข้อมูลพื้นฐานและสามารถประสานผู้รู้ที่เชี่ยวชาญในประเด็นนั้นๆ มาพูดคุยกับเครือข่ายได้",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "เข้าใจประเด็นที่กลุ่มและเครือข่ายกำลังขับเคลื่อนเป็นอย่างดี สามารถพูดในนามเครือข่ายได้",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 3,
+      title:
+        "3. ความสามารถในการทำแผน ทักษะการเขียนแผน การออกแบบทรัพยากร และการขยายอาณัติ",
+      image: "/images/AL_10_04.png",
+      options: [
+        { score: 0, text: "ทำเฉพาะกลุ่มตัวเองได้", color: "bg-white" },
+        {
+          score: 1,
+          text: "ทำแผนได้ แต่ยังต้องเติมทักษะการพัฒนาแผน มีแผนการขยายอาณัตินอกกลุ่มตัวเอง",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "ออกแบบและทำตามแผนได้ลุล่วง มีการขยายอาณัตินอกกลุ่มตัวเอง",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "มีทักษะการทำแผน เขียนแผน ออกแบบทรัพยากรที่ต้องใช้ในการดำเนินการตามแผน สามารถออกแบบการขยายอาณัติในระดับท้องถิ่นภาค และประเทศได้",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 4,
+      title: "4. ความรับรู้ของกลุ่มต่อภารกิจเชื่อมเครือข่าย",
+      image: "/images/AL_10_05.png",
+      options: [
+        { score: 0, text: "กลุ่มไม่รับรู้", color: "bg-white" },
+        {
+          score: 1,
+          text: "กลุ่มรับรู้แต่ไม่ได้เป็นมติกลุ่ม",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "กลุ่มรับรู้ เป็นมติกลุ่ม แต่กลุ่มไม่พร้อม",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "กลุ่มรับรู้ เข้าใจภารกิจและสนับสนุนให้ทำตามแผน",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 5,
+      title: "5. อาณัติในกลุ่ม อาณัติในการขยับงานกลุ่ม",
+      image: "/images/AL_10_06.png",
+      options: [
+        {
+          score: 0,
+          text: "ไม่สามารถเสนอประเด็นการเชื่อมเครือข่ายในกลุ่มได้",
+          color: "bg-white",
+        },
+        {
+          score: 1,
+          text: "เสนอประเด็นได้แต่ไม่มีส่วนร่วมตัดสินใจ",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "มีส่วนร่วมตัดสินใจ ได้รับมอบหมายให้ทำงานเชื่อมเครือข่าย",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "สามารถผลักดันให้กลุ่มร่วมกันทำแผนได้",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 6,
+      title: "6. กลุ่มขยายอาณัติมากกว่ากลุ่มตัวเอง",
+      image: "/images/AL_10_07.png",
+      options: [
+        {
+          score: 0,
+          text: "กลุ่มยังรู้สึกต้องกลับมาจัดการกลุ่มก่อน และมุ่งทำภารกิจกลุ่มมากกว่างานเครือข่าย",
+          color: "bg-white",
+        },
+        {
+          score: 1,
+          text: "กลุ่มตระหนักถึงข้อจำกัดในการทำกลุ่มเดี่ยวๆ และเห็นความสำคัญของการมีเครือข่าย มีการเข้าร่วมประชุม เข้าร่วมกิจกรรมกับกลุ่มอื่นเป็นครั้งคราว",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "กลุ่มเข้าร่วมเครือข่ายโดยมุ่งผลักดันประเด็นของกลุ่มตัวเองเป็นหลัก",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "กลุ่มเข้าร่วมเครือข่าย มีความสัมพันธ์และร่วมงานกับกลุ่มอื่น มีวิธีคิดที่ขยายจากกลุ่มตัวเอง มุ่งประเด็นเครือข่ายโดยไม่ทิ้งประเด็นตัวเอง",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 7,
+      title: "7. เชื่อมประเด็นได้",
+      image: "/images/AL_10_08.png",
+      options: [
+        {
+          score: 0,
+          text: "ยังคิดระดับกิจกรรมกลุ่มเป็นครั้งๆ ไป ตัวอย่างเช่น จัดนิทรรศการเรื่องเขื่อน จัดงานรณรงค์เป็นครั้งไป เป็นต้น",
+          color: "bg-white",
+        },
+        {
+          score: 1,
+          text: "คิดในระดับกิจกรรมร่วมกับกลุ่มอื่นๆ เป็นครั้งๆ เช่น ร่วมกับกลุ่มกิจกรรมอื่นๆ จัดนิทรรศการเรื่องเขื่อน",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "คิดในระดับผลผลิตร่วมกับกลุ่มอื่นๆ ในฐานะเครือข่าย เช่น จัดนิทรรศการ ลงพื้นที่ ยื่นหนังสือ ออกแถลงการณ์ ฯลฯ จนเกิดเครือข่ายที่ทำงานคัดค้านเขื่อนอย่างต่อเนื่อง",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "เชื่อมเพื่อนเชื่อมเครือข่ายแล้วยกระดับการทำงานสู่ผลลัพธ์ นั่นคือยกระดับจากเคสเรื่องเขื่อนไปสู่ประเด็นการจัดการน้ำหรือกระบวนการมีส่วนร่วมของประชาชนกับโครงการของรัฐ",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 8,
+      title: "8. เชื่อมภาคได้",
+      image: "/images/AL_10_09.png",
+      options: [
+        { score: 0, text: "ยังไม่มีการเชื่อมในระดับภาค", color: "bg-white" },
+        {
+          score: 1,
+          text: "รู้จักกลุ่มอื่นๆ ที่ทำงานคล้ายกันในระดับภาค",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "มีการพูดคุย ร่วมงานเป็นครั้งคราวกับกลุ่มอื่นๆ ในภาค",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "มีแผน มีกิจกรรมร่วมกันในฐานะเครือข่ายระดับภาค และมีส่วนร่วมในกลไกประสานงานระดับภาค",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+    {
+      id: 9,
+      title: "9. เชื่อมขบวนการต่อสู้เพื่อประชาธิปไตยในภาพใหญ่ได้",
+      image: "/images/AL_10_10.png",
+      options: [
+        {
+          score: 0,
+          text: "ยังไม่มีช่องทางการเชื่อมขบวนอย่างเป็นรูปธรรม",
+          color: "bg-white",
+        },
+        {
+          score: 1,
+          text: "มีการเชื่อมในระดับกิจกรรมเป็นครั้งคราว",
+          color: "bg-[#EFE5C2]",
+        },
+        {
+          score: 2,
+          text: "มีการเชื่อมในระดับกิจกรรมอย่างต่อเนื่อง",
+          color: "bg-[#A7C7E7]",
+        },
+        {
+          score: 3,
+          text: "มีส่วนร่วมในการออกแบบวางแผนงานในขบวน",
+          color: "bg-[#8B8BF7]",
+        },
+      ],
+    },
+  ];
+
+  // 🔥 1. ตั้งชื่อ Key สำหรับเก็บข้อมูล (เปลี่ยนชื่อโปรเจกต์ได้ตามใจชอบ)
+  const STORAGE_KEY = "actlab_assessment_save_v1";
+
+  // State เก็บค่า
+  let currentStep = 0;
+  let answers = new Array(questions.length).fill(null); // เก็บคำตอบ (0-3)
+
+  // DOM Elements
+  const quizView = document.getElementById("quiz-view");
+  const resultView = document.getElementById("result-view");
+  const qImage = document.getElementById("q-image") as HTMLImageElement;
+  const optionsContainer = document.getElementById("options-container");
+  const btnPrev = document.getElementById("btn-prev") as HTMLButtonElement;
+  const btnNext = document.getElementById("btn-next") as HTMLButtonElement;
+  const stepIndicator = document.getElementById("step-indicator");
+
+  // 🔥 2. ฟังก์ชันโหลดข้อมูล (เพิ่มใหม่)
+  function loadProgress() {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        // เช็คว่าจำนวนข้อตรงกันไหม (เผื่อเราแก้โจทย์ทีหลัง)
+        if (parsed.answers && parsed.answers.length === questions.length) {
+          answers = parsed.answers;
+          currentStep = parsed.currentStep || 0;
+        }
+      } catch (e) {
+        console.error("Save file corrupted, resetting...");
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }
+
+  // 🔥 3. ฟังก์ชันบันทึกข้อมูล (เพิ่มใหม่)
+  function saveProgress() {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        answers: answers,
+        currentStep: currentStep,
+      }),
+    );
+  }
+
+  // 🔥 4. ฟังก์ชันล้างข้อมูลเมื่อกด "ทำใหม่" (เพิ่มใหม่)
+  window.restartQuiz = function () {
+    // ใช้ window เพื่อให้ปุ่ม onclick ใน HTML เรียกใช้ได้ง่าย
+    if (confirm("ต้องการล้างข้อมูลและเริ่มใหม่ทั้งหมดใช่หรือไม่?")) {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  };
+
+  // ฟังก์ชันแสดงผล
+  function renderUI() {
+    const q = questions[currentStep];
+
+    qImage.src = q.image;
+    // อัปเดต alt ของรูปภาพตาม Title (ตามที่คุณขอไว้)
+    qImage.alt = q.title;
+
+    stepIndicator.innerText = `${currentStep + 1} / ${questions.length}`;
+
+    optionsContainer.innerHTML = "";
+    q.options.forEach((opt) => {
+      const isSelected = answers[currentStep] === opt.score;
+
+      const btn = document.createElement("div");
+      // (Style คงเดิม...)
+      btn.className = `relative flex items-stretch rounded-2xl overflow-hidden cursor-pointer shadow-sm border-2 transition-all group ${opt.color} ${isSelected ? "border-black scale-[1.02] shadow-md ring-2 ring-black/20" : "border-transparent hover:scale-[1.01] hover:shadow"}`;
+
+      btn.onclick = () => selectAnswer(opt.score);
+
+      btn.innerHTML = `
+        <div class="w-16 flex flex-col justify-center items-center shrink-0 border-r border-black/10">
+          <span class="text-lg md:text-3xl font-black text-black leading-none">${opt.score}</span>
+          <span class="text-[10px] font-bold text-black/50">คะแนน</span>
+        </div>
+        <div class="p-2 md:p-6 flex items-center">
+          <div class="text-xs md:text-xl text-gray-800 leading-snug text-left">${opt.text}</div>
+        </div>
+        
+        ${isSelected ? '<div class="absolute top-2 right-2 text-green-600 bg-white rounded-full p-1 shadow"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>' : ""}
+      `;
+
+      optionsContainer.appendChild(btn);
+    });
+
+    // จัดการปุ่ม Nav
+    btnPrev.disabled = currentStep === 0;
+
+    if (currentStep === questions.length - 1) {
+      btnNext.innerText = "สรุปผลลัพธ์ ⭐";
+      btnNext.classList.remove("bg-black");
+      btnNext.classList.add("bg-orange-600");
+    } else {
+      btnNext.innerText = "ถัดไป →";
+      btnNext.classList.add("bg-black");
+      btnNext.classList.remove("bg-orange-600");
+    }
+  }
+
+  function selectAnswer(score) {
+    answers[currentStep] = score;
+    saveProgress(); // 🔥 บันทึกทันทีที่เลือก
+    renderUI();
+  }
+
+  function handlePrev() {
+    if (currentStep > 0) {
+      currentStep--;
+      saveProgress(); // 🔥 บันทึกหน้าที่อยู่ปัจจุบัน
+      renderUI();
+    }
+  }
+
+  function handleNext() {
+    if (answers[currentStep] === null) {
+      alert("กรุณาเลือกคำตอบก่อนไปข้อถัดไปครับ");
+      return;
+    }
+
+    if (currentStep < questions.length - 1) {
+      currentStep++;
+      saveProgress(); // 🔥 บันทึกหน้าที่อยู่ปัจจุบัน
+      renderUI();
+    } else {
+      calculateResult();
+    }
+  }
+
+  btnPrev.addEventListener("click", handlePrev);
+  btnNext.addEventListener("click", handleNext);
+
+  function calculateResult() {
+    // 🔥 บันทึกสถานะว่าทำเสร็จแล้ว (เผื่อ Refresh หน้าผลลัพธ์จะได้ไม่หาย)
+    saveProgress();
+
+    quizView.classList.add("hidden");
+    resultView.classList.remove("hidden");
+
+    const total = answers.reduce((a, b) => a + b, 0);
+
+    // (ส่วนสร้างกราฟ คงเดิม...)
+    // หมายเหตุ: เช็ค id canvas ให้ตรงกับ HTML นะครับ
+    const ctx = document.getElementById("radarChart");
+    if (ctx) {
+      // Destroy old chart if exists (prevent overlap on reload)
+      const existingChart = Chart.getChart(ctx);
+      if (existingChart) existingChart.destroy();
+
+      new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: questions.map((q) => q.id.toString()),
+          datasets: [
+            // 🟡 Layer 1 (ล่างสุด): พื้นที่สีเหลือง (Level 1)
+            {
+              data: new Array(9).fill(1),
+              backgroundColor: "rgba(255, 240, 150, 1)", // ปรับสีเหลืองให้สว่างและทึบขึ้น
+              borderColor: "transparent", // ซ่อนขอบสีเหลือง
+              pointRadius: 0, // ซ่อนจุด
+              fill: true,
+              order: 3, // วาดก่อน (อยู่ล่างสุด)
+            },
+
+            // 🔵 Layer 2 (กลาง): พื้นที่สีฟ้า (คะแนนของคุณ - เฉพาะสีพื้น)
+            {
+              data: answers,
+              backgroundColor: "rgba(110, 115, 250, 0.5)", // ปรับสีให้เป็น "น้ำเงินม่วง" (Periwinkle) ที่สดกว่าเดิม
+              borderColor: "transparent", // ซ่อนขอบ (เราจะไปวาดขอบใน Layer บนสุดแทน)
+              pointRadius: 0, // ซ่อนจุด
+              fill: true,
+              order: 2, // วาดทีหลัง (ทับสีเหลือง)
+            },
+
+            // ⚫ Layer 3 (บนสุด): เส้นขอบและจุด (คะแนนของคุณ - เฉพาะเส้น)
+            {
+              label: "คะแนนของคุณ",
+              data: answers,
+              backgroundColor: "transparent", // ไม่เอาสีพื้น (เดี๋ยวไปบัง Layer อื่น)
+              borderColor: "black", // เส้นสีดำเข้ม
+              borderWidth: 3,
+              pointBackgroundColor: "black",
+              pointBorderColor: "black",
+              pointHoverBackgroundColor: "white",
+              pointHoverBorderColor: "black",
+              pointRadius: 6, // จุดใหญ่ชัดเจน
+              fill: false, // ไม่ต้อง Fill แล้ว
+              order: 1, // วาดหลังสุด (อยู่บนสุดเสมอ)
+            },
+          ],
+        },
+        options: {
+          font: {
+            family: "'Anuphan Variable'", // ต้องตรงกับชื่อใน Fontsource
+            size: 14,
+          },
+          scales: {
+            r: {
+              min: 0,
+              max: 3,
+              ticks: {
+                stepSize: 1,
+                display: false, // ซ่อนตัวเลขบนแกน (เพื่อให้ดูสะอาดเหมือนรูป)
+              },
+              grid: {
+                color: "rgba(0,0,0,0.1)",
+                circular: false, // เปลี่ยนเส้น Grid เป็นเหลี่ยมๆ ตามรูป
+              },
+              angleLines: { color: "rgba(0,0,0,0.1)" },
+              pointLabels: {
+                font: { size: 14, weight: "bold" }, // ปรับตัวเลขหัวข้อให้ใหญ่ขึ้น
+                color: "#666",
+              },
+            },
+          },
+          plugins: {
+            legend: { display: false }, // ซ่อน Legend ด้านบน
+          },
+        },
+      });
+    }
+
+    // (ส่วน Feedback คงเดิม...)
+    const feedbackBox = document.getElementById("feedback-box");
+    let feedback = "";
+    if (total <= 9)
+      feedback = `<span class="text-orange-600 font-bold text-xl">กลุ่มเริ่มเรียนรู้ (${total} คะแนน)</span><br>เราน่าจะพูดคุยทบทวนกำหนดทิศทางกันใหม่`;
+    else if (total <= 18)
+      feedback = `<span class="text-yellow-600 font-bold text-xl">กลุ่มกำลังพัฒนา (${total} คะแนน)</span><br>พยายามอีกหน่อยนะ เรากำลังจะได้เป็นช่างเชื่อมที่เจ๋งแล้ว`;
+    else if (total <= 23)
+      feedback = `<span class="text-blue-600 font-bold text-xl">กลุ่มเชี่ยวชาญ (${total} คะแนน)</span><br>ฉันเป็นช่างเชื่อมแล้ว อัพเลเวลต่อไม่รอละนะ`;
+    else
+      feedback = `<span class="text-purple-600 font-bold text-xl">กลุ่มยอดเยี่ยม (${total} คะแนน)</span><br>ฉันเป็นช่างเชื่อมที่เจ๋งสุดๆ น่าจะแบ่งปันบทเรียนนี้แก่ช่างเชื่อมคนอื่นๆ ได้`;
+
+    feedbackBox.innerHTML = feedback;
+  }
+
+  // 🔥 เริ่มต้นการทำงาน (Main Logic)
+  loadProgress(); // 1. โหลดข้อมูลก่อน
+
+  // 2. เช็คว่าทำเสร็จไปแล้วหรือยัง?
+  // ถ้าตอบครบทุกข้อแล้ว ให้เด้งไปหน้าผลลัพธ์เลย (ไม่ต้องทำใหม่)
+  if (answers.every((a) => a !== null) && answers.length === questions.length) {
+    calculateResult();
+  } else {
+    renderUI(); // ถ้ายังไม่เสร็จ ให้ render หน้าคำถามที่ทำค้างไว้
+  }
+</script>

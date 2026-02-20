@@ -3,7 +3,37 @@
   https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
+@import "tailwindcss";
 
+/* 1. Import ฟอนต์ Anuphan (Variable) */
+@import "@fontsource-variable/anuphan/index.css";
+
+@theme {
+  /* 2. กำหนดค่าตัวแปรฟอนต์ */
+  --font-anuphan: "Anuphan Variable", sans-serif;
+  --font-sans: "Anuphan Variable", sans-serif;
+  --color-space: srgb;
+}
+
+@layer base {
+  /* 3. ใช้ Anuphan กับทั้ง Body */
+  body {
+    font-family: var(--font-anuphan);
+    @apply font-normal leading-relaxed text-gray-800;
+  }
+
+  /* 4. เทคนิคสร้างความต่าง (Hierarchy) ให้หัวข้อ */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-anuphan);
+    /* หัวข้อใช้ตัวหนา (700) และบีบระยะห่างตัวอักษรเล็กน้อยให้ดูเท่ */
+    @apply font-bold tracking-tight text-black;
+  }
+
+  /* บังคับให้ทุกอย่างใช้ Anuphan รวมถึงปุ่มและ Input ที่มักจะมีฟอนต์เริ่มต้นของตัวเอง */
+  *, *::before, *::after {
+    font-family: var(--font-anuphan), sans-serif;
+  }
+}
 :root {
 	--accent: #2337ff;
 	--accent-dark: #000d8a;
@@ -16,38 +46,19 @@
 		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%), 0 16px 32px
 		rgba(var(--gray), 33%);
 }
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-regular.woff") format("woff");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
-}
-@font-face {
-	font-family: "Atkinson";
-	src: url("/fonts/atkinson-bold.woff") format("woff");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
-}
-body {
-	font-family: "Atkinson", sans-serif;
-	margin: 0;
-	padding: 0;
-	text-align: left;
-	background: linear-gradient(var(--gray-gradient)) no-repeat;
-	background-size: 100% 600px;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
-	font-size: 20px;
-	line-height: 1.7;
-}
+
 main {
-	width: 720px;
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: 3em 1em;
+    width: 100%; /* เปลี่ยนจาก 720px เป็น 100% */
+    max-width: 1020px; /* ให้กว้างเท่ากับขนาดรูปที่คุณต้องการ */
+    margin: 0 auto;
+    /* ลบ padding ด้านข้างออกเพื่อให้รูปเต็มขอบจอได้ */
+    padding: 0; 
+}
+/* สำหรับหน้าทั่วไปที่ยังอยากให้มีระยะห่างข้างจอ (ยกเว้นหน้า Blog) */
+.container-standard {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1em;
 }
 h1,
 h2,
@@ -59,20 +70,26 @@ h6 {
 	color: rgb(var(--black));
 	line-height: 1.2;
 }
-h1 {
-	font-size: 3.052em;
+
+/* --- ขนาดเริ่มต้นสำหรับ Mobile --- */
+h1 { font-size: 2rem; }    /* ประมาณ 32px */
+h2 { font-size: 1.75rem; } /* ประมาณ 28px */
+h3 { font-size: 1.5rem; }  /* ประมาณ 24px */
+h4 { font-size: 1.25rem; } /* ประมาณ 20px */
+h5 { font-size: 1.1rem; }  /* ประมาณ 18px */
+
+/* --- ปรับขนาดสำหรับ Desktop (หน้าจอ 768px ขึ้นไป) --- */
+@media (min-width: 768px) {
+    h1 { font-size: 3.052em; }
+    h2 { font-size: 2.441em; }
+    h3 { font-size: 1.953em; }
+    h4 { font-size: 1.563em; }
+    h5 { font-size: 1.25em; }
+	img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
 }
-h2 {
-	font-size: 2.441em;
-}
-h3 {
-	font-size: 1.953em;
-}
-h4 {
-	font-size: 1.563em;
-}
-h5 {
-	font-size: 1.25em;
 }
 strong,
 b {
@@ -100,11 +117,7 @@ input {
 table {
 	width: 100%;
 }
-img {
-	max-width: 100%;
-	height: auto;
-	border-radius: 8px;
-}
+
 code {
 	padding: 2px 5px;
 	background-color: rgb(var(--gray-light));
@@ -118,11 +131,50 @@ pre > code {
 	all: unset;
 }
 blockquote {
-	border-left: 4px solid var(--accent);
-	padding: 0 0 0 20px;
-	margin: 0;
+	position: relative;
+  font-weight: 800;
+  padding: 30px 0;
+  width: 100%;
+  max-width: 500px;
+  z-index: 1;
+  margin: 80px auto;
+  align-self: center;
+  border-top: solid 1px;
+  border-bottom: solid 1px;
 	font-size: 1.333em;
 }
+
+/* Blockquote header */
+blockquote h1 {
+    position: relative;
+    color: #616060;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 0;
+}
+/* Blockquote subheader */
+blockquote h4 {
+    position: relative;
+    color: #292a2b;
+    font-size: 1.4rem;
+    font-weight: normal;
+    line-height: 1;
+    margin: 0;
+    padding-top: 20px;
+    z-index: 1;
+}
+/* Blockquote right double quotes */
+blockquote:after {
+    position: absolute;
+    content: "”";
+    color: rgb(117, 117, 117);
+    font-size: 10rem;
+    line-height: 0;
+    bottom: -43px;
+    right: 30px;
+}
+
 hr {
 	border: none;
 	border-top: 1px solid rgb(var(--gray-light));
@@ -135,6 +187,7 @@ hr {
 		padding: 1em;
 	}
 }
+
 
 .sr-only {
 	border: 0;
@@ -153,3 +206,31 @@ hr {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+@media print {
+  /* ซ่อนสิ่งที่ไม่ต้องการให้โผล่ใน PDF */
+  nav, footer, .btn-pdf, .sidebar ,.non-printable {
+    display: none !important;
+  }
+
+  /* ปรับแต่งเนื้อหาให้เหมาะกับกระดาษ A4 */
+  article {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+}
+
+  /* เจาะจงไปที่ <a> ที่อยู่ในโซน Tags เท่านั้น */
+  .tags-container a {
+    /* ใช้ !important เพื่อล้างคำสั่งจาก global.css */
+    color: theme("colors.gray.600") !important;
+    text-decoration: none !important;
+    background-color: theme("colors.gray.50");
+    transition: all 0.3s ease;
+  }
+
+  .tags-container a:hover {
+    color: white !important;
+    background-color: black !important;
+  }

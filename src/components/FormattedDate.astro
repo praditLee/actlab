@@ -1,17 +1,28 @@
 ---
+// src/components/FormattedDate.astro
 interface Props {
-	date: Date;
+  date: Date | string; // ปรับให้รับได้ทั้ง Date และ String เพื่อความปลอดภัย
 }
 
 const { date } = Astro.props;
+
+// ตรวจสอบและแปลงให้เป็น Date Object เสมอ
+const dateObj = typeof date === "string" ? new Date(date) : date;
+
+// ตรวจสอบว่าวันที่ถูกต้องหรือไม่ (ป้องกันกรณี Invalid Date)
+const isValidDate = dateObj instanceof Date && !isNaN(dateObj.getTime());
 ---
 
-<time datetime={date.toISOString()}>
-	{
-		date.toLocaleDateString('en-us', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		})
-	}
-</time>
+{
+  isValidDate ? (
+    <time datetime={dateObj.toISOString()}>
+      {dateObj.toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}
+    </time>
+  ) : (
+    <span class="text-red-500" />
+  )
+}

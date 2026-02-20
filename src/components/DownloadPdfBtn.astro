@@ -1,0 +1,47 @@
+---
+// src/components/DownloadPdfBtn.astro
+const { title, download } = Astro.props;
+---
+
+{
+  /* กรณีที่ 1: มีไฟล์เตรียมไว้แล้ว -> ให้เป็นลิงก์ดาวน์โหลดตรงๆ */
+  download ? (
+    <a
+      href={download}
+      download /* attribute นี้จะบังคับให้ Browser ดาวน์โหลดไฟล์แทนการเปิด */
+      target="_blank"
+      class="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-colors shadow-lg cursor-pointer no-underline"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span class="font-medium text-sm">Download PDF</span>
+    </a>
+  ) : (
+    /* กรณีที่ 2: ไม่มีไฟล์ -> ใช้ปุ่มเดิมเพื่อสั่ง Print / Save as PDF */
+    <button
+      id="download-pdf-btn"
+      class="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-700 transition-colors shadow-lg cursor-pointer"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9V2h12v7"></path>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+        <path d="M6 14h12v8H6z"></path>
+      </svg>
+      <span class="font-medium text-sm">Print / Save PDF</span>
+    </button>
+  )
+}
+<style>
+  a {
+    color: white;
+  }
+</style>
+<script>
+  const btn = document.getElementById('download-pdf-btn');
+  btn?.addEventListener('click', () => {
+    window.print();
+  });
+</script>

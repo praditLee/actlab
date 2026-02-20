@@ -8,11 +8,15 @@ const blog = defineCollection({
 	schema: ({ image }) =>
 		z.object({
 			title: z.string(),
-			description: z.string(),
+			description: z.string().optional(),
 			// Transform string to Date object
-			pubDate: z.coerce.date(),
+			date: z.coerce.date().optional(),
 			updatedDate: z.coerce.date().optional(),
-			heroImage: image().optional(),
+			coverImage: image().optional(),
+			tags: z.array(z.string()).optional(),
+			related: z.string().optional(), // ข้อความที่จะแสดง เช่น "ทำความรู้จัก Act Lab ให้มากขึ้น"
+    		linkurl: z.string().optional(), // ลิงก์ปลายทาง
+			download: z.string().optional(),
 		}),
 });
 

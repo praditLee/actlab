@@ -1,0 +1,6 @@
+---
+title: "Custom Select"
+date: 2021-03-13
+---
+
+a:11:{s:4:"type";s:11:"post\_object";s:12:"instructions";s:0:"";s:8:"required";i:1;s:17:"conditional\_logic";a:1:{i:0;a:1:{i:0;a:3:{s:5:"field";s:19:"field\_5dabc8aa1fda1";s:8:"operator";s:2:"==";s:5:"value";s:6:"custom";}}}s:7:"wrapper";a:3:{s:5:"width";s:0:"";s:5:"class";s:0:"";s:2:"id";s:0:"";}s:9:"post\_type";a:2:{i:0;s:4:"post";i:1;s:4:"page";}s:8:"taxonomy";s:0:"";s:10:"allow\_null";i:0;s:8:"multiple";i:1;s:13:"return\_format";s:2:"id";s:2:"ui";i:1;}

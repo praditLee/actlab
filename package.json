@@ -12,7 +12,14 @@
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/rss": "^4.0.15",
     "@astrojs/sitemap": "^3.7.0",
-    "astro": "^5.16.15",
-    "sharp": "^0.34.3"
+    "@fontsource-variable/anuphan": "^5.2.8",
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.17.1",
+    "chart.js": "^4.5.1",
+    "glightbox": "^3.3.1",
+    "html-to-image": "^1.11.13",
+    "sharp": "^0.34.3",
+    "swiper": "^12.1.0",
+    "tailwindcss": "^4.1.18"
   }
 }

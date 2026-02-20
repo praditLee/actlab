@@ -1,0 +1,6 @@
+---
+title: "Desktop Layout"
+date: 2021-04-20
+---
+
+a:10:{s:4:"type";s:12:"button\_group";s:12:"instructions";s:0:"";s:8:"required";i:0;s:17:"conditional\_logic";i:0;s:7:"wrapper";a:3:{s:5:"width";s:2:"25";s:5:"class";s:0:"";s:2:"id";s:0:"";}s:7:"choices";a:2:{s:4:"list";s:4:"List";s:4:"card";s:4:"Card";}s:10:"allow\_null";i:0;s:13:"default\_value";s:4:"card";s:6:"layout";s:10:"horizontal";s:13:"return\_format";s:5:"value";}

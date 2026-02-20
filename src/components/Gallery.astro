@@ -1,0 +1,322 @@
+---
+// src/components/Gallery.astro
+import "glightbox/dist/css/glightbox.min.css";
+
+interface Props {
+  images: {
+    src: string;
+    alt: string;
+    thumb?: string;
+    title?: string;
+    description?: string;
+  }[];
+  mode: "grid" | "carousel";
+  autoplay?: boolean;
+  columns?: 1 | 2 | 3 | 4 | 5 | 6;
+}
+
+const { images, mode = "grid", autoplay = true, columns = 4 } = Astro.props;
+
+const gridColsClass = {
+  1: "grid-cols-1",
+  2: "grid-cols-1 md:grid-cols-2 lg:grid-cols-2",
+  3: "grid-cols-2 md:grid-cols-3 lg:grid-cols-3",
+  4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+  5: "grid-cols-2 md:grid-cols-3 lg:grid-cols-5",
+  6: "grid-cols-2 md:grid-cols-4 lg:grid-cols-6",
+};
+
+const activeGridClass = gridColsClass[columns] || gridColsClass[4];
+---
+
+<div class="gallery-wrapper w-full max-w-6xl mx-auto my-8">
+  {
+    mode === "grid" ? (
+      /* --- 1. แสดงผลแบบ Grid --- */
+      <div class={`grid gap-4 ${activeGridClass}`}>
+        {images.map((img) => (
+          <a
+            href={img.src}
+            class="glightbox block overflow-hidden rounded-xl shadow-sm border border-gray-100"
+            data-title={img.title}
+            data-description={img.description}
+          >
+            <img
+              src={img.thumb || img.src}
+              alt={img.alt}
+              class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
+            />
+          </a>
+        ))}
+      </div>
+    ) : (
+      /* --- 2. แสดงผลแบบ Carousel --- */
+      <div
+        class="swiper h-auto rounded-2xl overflow-hidden shadow-lg border-4 border-white"
+        data-autoplay={autoplay.toString()}
+      >
+        <div class="swiper-wrapper">
+          {images.map((img) => (
+            <div class="swiper-slide bg-gray-100 flex items-center justify-center">
+              <a
+                href={img.src}
+                class="glightbox w-full h-full block"
+                data-title={img.title}
+                data-description={img.description}
+              >
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  class="w-full h-full object-cover"
+                />
+                {(img.title || img.description) && (
+                  <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent text-white">
+                    <h4 class="gslide-title font-bold text-lg text-white">
+                      {img.title}
+                    </h4>
+                    <p class="text-sm opacity-80 line-clamp-1">
+                      {img.description}
+                    </p>
+                  </div>
+                )}
+              </a>
+            </div>
+          ))}
+        </div>
+        <div class="swiper-pagination" />
+        <div class="swiper-button-next !text-black bg-white/50 backdrop-blur-sm w-5 h-5 rounded-full after:text-sm" />
+        <div class="swiper-button-prev !text-black bg-white/50 backdrop-blur-sm w-10 h-10 rounded-full after:text-sm" />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  /* Import CSS ของ Library */
+  @import "glightbox/dist/css/glightbox.min.css";
+  @import "swiper/css";
+  @import "swiper/css/navigation";
+  @import "swiper/css/pagination";
+  @reference "tailwindcss";
+  /* บังคับให้ลิงก์ glightbox รับเหตุการณ์การคลิกได้เสมอ */
+  :global(.glightbox) {
+    display: block;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+  }
+
+  /* ป้องกันหน้าเว็บเลื่อนไม่ได้เวลาปิด Modal พลาด */
+  :global(body.glightbox-open) {
+    overflow: hidden;
+  }
+
+  :global(.swiper) {
+    /* ปรับขนาดลูกศรผ่านตัวแปรหลักของ Swiper */
+    --swiper-navigation-size: 30px;
+  }
+  .swiper-pagination-bullet-active {
+    @apply !bg-black;
+  }
+  /* 1. ปรับขนาดกรอบปุ่ม */
+  :global(.swiper-button-prev),
+  :global(.swiper-button-next) {
+    width: 32px !important; /* ลองลดเหลือ 32px */
+    height: 32px !important;
+    background: rgba(
+      255,
+      255,
+      255,
+      0.8
+    ); /* ทำพื้นหลังให้นิดหน่อยเพื่อให้เห็นชัด */
+    border-radius: 50%;
+  }
+
+  /* 2. ปรับขนาดไอคอน SVG ด้านใน */
+  :global(.swiper-button-prev svg),
+  :global(.swiper-button-next svg) {
+    width: 16px !important; /* ปรับไอคอนให้เล็กลงตามกรอบ */
+    height: 16px !important;
+    object-fit: contain;
+  }
+  /* ปรับแต่ง Lightbox Caption ให้ดูสะอาดตาขึ้น */
+  :global(.gdesc-inner) {
+    @apply !py-4 !px-6;
+  }
+  :global(.gslide-title) {
+    @apply font-bold mb-1;
+    font-family: "Anuphan Variable", sans-serif;
+    color: white !important;
+    font-size: 1.125rem; /* text-lg */
+    line-height: 1.75rem; /* leading-7 */
+  }
+  :global(.gslide-description) {
+    background: none !important;
+    font-size: 0.875rem; /* text-sm */
+    line-height: 1.25rem; /* leading-5 */
+    opacity: 0.85;
+    color: white !important;
+  }
+  @reference "tailwindcss";
+
+  @media print {
+    /* 1. ปลดล็อกตัวครอบที่เคยซ่อนรูปไว้ */
+    .swiper,
+    .swiper-container,
+    [class*="gallery"] {
+      overflow: visible !important;
+      height: auto !important;
+    }
+
+    /* 2. เปลี่ยนจากการเรียงแนวนอน (Carousel) เป็นแนวตั้ง (Stack) */
+    .swiper-wrapper {
+      display: block !important; /* หรือ flex-direction: column */
+      transform: none !important; /* ล้างค่าการเลื่อนของ JS */
+      width: 100% !important;
+    }
+
+    /* 3. จัดการขนาดรูปให้เต็มกว้างและไม่ขาดครึ่งหน้า */
+    .swiper-slide {
+      width: 100% !important;
+      height: 100% !important;
+      margin-bottom: 2rem !important; /* เว้นระยะระหว่างรูป */
+      page-break-inside: avoid !important; /* 🔥 ห้ามตัดรูปขาดครึ่งแผ่น */
+      display: block !important;
+    }
+
+    .swiper-slide img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important; /* มั่นใจว่าเห็นครบทั้งใบ */
+      border-radius: 0 !important; /* ปริ้นแล้วขอบเหลี่ยมจะดูเนียนกว่า */
+    }
+
+    /* 4. ซ่อนปุ่มกดและจุด Pagination ใน PDF */
+    .swiper-button-next,
+    .swiper-button-prev,
+    .swiper-pagination {
+      display: none !important;
+    }
+
+    /* 1. เจาะจงไปที่รูปภาพในการ์ดพวกนั้น */
+    .grid img,
+    .prose img {
+      /* บังคับให้แสดงภาพให้ครบ (ห้าม Crop) */
+      object-fit: contain !important;
+
+      /* ปลดล็อคความสูงและความกว้าง */
+      height: auto !important;
+      width: 100% !important;
+      max-width: 100% !important;
+
+      /* ยกเลิกการบังคับสัดส่วน (เช่น aspect-square) */
+      aspect-ratio: auto !important;
+    }
+
+    /* 2. เจาะจงไปที่กล่อง Container ของรูป (ถ้ามี) */
+    .grid > div {
+      height: auto !important; /* ปล่อยให้กล่องยืดตามรูป */
+      min-height: 0 !important;
+      overflow: visible !important; /* ห้ามซ่อนส่วนที่ล้น */
+      display: block !important; /* กันเหนียว: เปลี่ยนจาก flex/grid ซับซ้อนเป็น block ธรรมดาในระดับลูก */
+    }
+
+    /* 3. (Optional) ปรับ Grid ให้เหลือแค่ 2 คอลัมน์ตอนปริ้น รูปจะได้ใหญ่ขึ้น */
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 1rem !important;
+    }
+  }
+</style>
+
+<script>
+  import GLightbox from "glightbox";
+  import Swiper from "swiper";
+  import { Navigation, Pagination, Autoplay } from "swiper/modules";
+
+  // สร้างตัวแปรเก็บ instance ไว้ข้างนอก เพื่อเรียกใช้ซ้ำได้
+  let lightbox;
+
+  function initGallery() {
+    // 1. เริ่มต้น Swiper ก่อน
+    const swiperEl = document.querySelector(".swiper");
+    if (swiperEl) {
+      new Swiper(".swiper", {
+        modules: [Navigation, Pagination, Autoplay],
+        loop: true,
+        autoplay: {
+          delay: 4000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        },
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+        pagination: { el: ".swiper-pagination", clickable: true },
+        // 🔥 เพิ่ม Event: เมื่อ Swiper สร้าง Cloned slides เสร็จ ให้สั่ง Lightbox ทำงานใหม่
+        on: {
+          afterInit: () => {
+            if (lightbox) lightbox.reload();
+          },
+          loopFix: () => {
+            if (lightbox) lightbox.reload();
+          },
+        },
+      });
+    }
+
+    // 2. เริ่มต้น GLightbox
+    lightbox = GLightbox({
+      selector: ".glightbox",
+      loop: true,
+      openEffect: "zoom",
+      closeEffect: "fade",
+    });
+  }
+
+  // รันฟังก์ชันเมื่อ DOM พร้อม (สำหรับ Astro)
+  document.addEventListener("astro:page-load", initGallery);
+  // หากไม่ได้ใช้ View Transitions ให้ใช้บรรทัดล่างนี้แทน
+  initGallery();
+</script>
+
+<!-- <script>
+  import GLightbox from "glightbox";
+  import Swiper from "swiper";
+  import { Navigation, Pagination, Autoplay } from "swiper/modules";
+
+  // 1. เปิดใช้งาน Lightbox
+  const lightbox = GLightbox({
+    selector: ".glightbox",
+    touchNavigation: true,
+    loop: true,
+    zoomable: true,
+    draggable: true,
+  });
+
+  // 2. เปิดใช้งาน Swiper (เฉพาะเมื่อมี Element อยู่ในหน้า)
+  const swiperEl = document.querySelector(".swiper") as HTMLElement;
+  if (swiperEl) {
+    const shouldAutoplay = swiperEl.getAttribute("data-autoplay") === "true";
+    new Swiper(".swiper", {
+      modules: [Navigation, Pagination, Autoplay],
+      loop: true,
+
+      // 🔥 ปรับการตั้งค่า Autoplay
+      autoplay: shouldAutoplay
+        ? {
+            delay: 4000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true, // ✅ เพิ่มบรรทัดนี้: หยุดเลื่อนเมื่อเอาเมาส์วาง
+          }
+        : false, // ถ้า autoplay เป็น false ใน Props ก็จะปิดฟีเจอร์นี้ไปเลย
+
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      pagination: { el: ".swiper-pagination", clickable: true },
+    });
+  }
+</script> -->
