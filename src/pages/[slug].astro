@@ -1,0 +1,23 @@
+---
+import { getCollection } from "astro:content";
+// นำเข้า Layout ของคุณ (เปลี่ยน path ให้ตรงกับโปรเจกต์จริง)
+import MainLayout from "../layouts/MainLayout.astro";
+
+export async function getStaticPaths() {
+  const pageEntries = await getCollection("pages");
+  return pageEntries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+import { render } from "astro:content";
+const { Content } = await render(entry);
+---
+
+<MainLayout title={entry.data.title}>
+  <article class="prose max-w-4xl mx-auto py-10">
+    <Content />
+  </article>
+</MainLayout>

@@ -4,6 +4,8 @@ date: 2020-09-24
 categories:
   - "group-formation"
 coverImage: "../../assets/3-step-developgroup.jpg"
+related: "“ไปต่อหรือแยกย้าย?” รู้จักพัฒนาการกลุ่มสามขั้น"
+linkurl: "/blog/continue-or-separate/"
 ---
 
 เมื่อคนเรามารวมกันเป็นกลุ่มเราจะมีความสัมพันธ์ระหว่างสมาชิกในกลุ่ม ขณะเดียวกันกลุ่มก็จะมีความสัมพันธ์กับโลกภายนอกด้วย

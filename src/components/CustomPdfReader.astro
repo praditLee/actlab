@@ -1,0 +1,106 @@
+---
+// src/components/CustomPdfReader.astro
+interface Props {
+  title: string;
+  pdfUrl: string;
+}
+
+const { title, pdfUrl } = Astro.props;
+---
+
+<div
+  class="w-full bg-gray-900 font-sans text-gray-200 overflow-hidden"
+  style="height: 100vh;"
+>
+  <header
+    class="bg-gray-800 border-b border-gray-700 shadow-sm flex items-center px-4 shrink-0 z-50"
+    style="height: 60px;"
+  >
+    <a
+      href="javascript:history.back()"
+      class="hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center gap-2"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      <span class="text-sm font-medium">กลับ</span>
+    </a>
+    <h1 class="ml-4 text-base md:text-lg font-medium truncate">{title}</h1>
+  </header>
+
+  <main class="w-full bg-gray-900 relative" style="height: calc(100vh - 60px);">
+    <div id="df_manual_book" source={pdfUrl} class="absolute inset-0"></div>
+  </main>
+</div>
+
+<script is:inline>
+  var dFlipLocation = "/dflip/";
+</script>
+<link href="/dflip/css/dflip.min.css" rel="stylesheet" type="text/css" />
+<link
+  href="/dflip/css/themify-icons.min.css"
+  rel="stylesheet"
+  type="text/css"
+/>
+<script
+  is:inline
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+></script>
+<script is:inline src="/dflip/js/dflip.min.js"></script>
+
+<script is:inline>
+  function loadFlipbook() {
+    // 1. เช็คว่า dFlip โหลดเสร็จหรือยัง
+    if (
+      typeof jQuery === "undefined" ||
+      typeof jQuery.fn.flipBook === "undefined"
+    ) {
+      setTimeout(loadFlipbook, 100);
+      return;
+    }
+
+    // 🚨 2. ทริคสำคัญ: บังคับแก้ Path "หลังจาก" dFlip โหลดเสร็จแล้ว!
+    if (window.DFLIP && window.DFLIP.defaults) {
+      window.DFLIP.defaults.pdfjsSrc = "/dflip/js/libs/pdf.min.js";
+      window.DFLIP.defaults.pdfjsWorkerSrc = "/dflip/js/libs/pdf.worker.min.js";
+      window.DFLIP.defaults.threejsSrc = "/dflip/js/libs/three.min.js";
+      window.DFLIP.defaults.mockupjsSrc = "/dflip/js/libs/mockup.min.js";
+      window.DFLIP.defaults.soundFile = "/dflip/sound/turn2.mp3";
+    }
+
+    var $container = jQuery("#df_manual_book");
+    if (!$container.length || $container.data("dflip-loaded")) return;
+
+    var pdfLink = $container.attr("source");
+
+    // 3. สั่งวาดหนังสือ
+    $container.flipBook(pdfLink, {
+      height: "100%",
+      backgroundColor: "transparent",
+      forceFit: true,
+      webgl: true,
+      // ✨ เพิ่ม 2 บรรทัดนี้เข้าไปครับ
+      pageMode: 0, // 0 = Auto (คอมโชว์คู่ มือถือโชว์เดี่ยว)
+      singlePageMode: 2, // 2 = โหมด Booklet (โชว์กระดาษแผ่นเดียวเต็มจอสำหรับมือถือ)
+    });
+
+    $container.data("dflip-loaded", true);
+  }
+
+  document.addEventListener("astro:page-load", loadFlipbook);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadFlipbook);
+  } else {
+    loadFlipbook();
+  }
+</script>

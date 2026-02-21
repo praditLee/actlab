@@ -20,4 +20,17 @@ const blog = defineCollection({
 		}),
 });
 
-export const collections = { blog };
+const pages = defineCollection({
+  // บอก Astro ให้ไปกวาดไฟล์ .md หรือ .mdx ทั้งหมดในโฟลเดอร์ pages
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/pages" }), 
+  schema: ({ image }) => 
+	z.object({
+		title: z.string(),
+		description: z.string().optional(),
+		date: z.coerce.date().optional(),
+		updatedDate: z.coerce.date().optional(),
+		coverImage: image().optional(),
+  	}),
+});
+
+export const collections = { blog, pages };
