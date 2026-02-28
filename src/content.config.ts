@@ -9,7 +9,7 @@ const blog = defineCollection({
 		z.object({
 			title: z.string(),
 			description: z.string().optional(),
-			// Transform string to Date object
+			categories: z.array(z.string()).optional(),
 			date: z.coerce.date().optional(),
 			updatedDate: z.coerce.date().optional(),
 			coverImage: image().optional(),
@@ -30,6 +30,9 @@ const pages = defineCollection({
 		date: z.coerce.date().optional(),
 		updatedDate: z.coerce.date().optional(),
 		coverImage: image().optional(),
+		readlink: z.string().optional(),
+		tags: z.array(z.string()).optional(),
+		template: z.enum(['main', 'book']).default('main'),
   	}),
 });
 

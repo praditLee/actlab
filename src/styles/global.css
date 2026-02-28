@@ -234,3 +234,75 @@ hr {
     color: white !important;
     background-color: black !important;
   }
+
+/* =========================================
+     CSS สำหรับเนรมิตหนังสือ 3 มิติ
+  ========================================= */
+
+  /* กำหนดขนาดพื้นฐานของหนังสือ (ปรับได้ตามสัดส่วนรูปปกของคุณ) */
+  .book {
+    position: relative;
+    width: 160px;
+    height: 230px;
+    transform-style: preserve-3d; /* สำคัญมาก: เปิดโหมด 3D */
+    /* เอียงหนังสือไปด้านหลัง 25 องศา เพื่อโชว์ความหนาด้านขวา */
+    transform: perspective(1000px) rotateY(-25deg);
+    transition:
+      transform 0.4s ease,
+      box-shadow 0.4s ease;
+  }
+
+  /* Responsive สำหรับจอใหญ่ */
+  @media (min-width: 768px) {
+    .book {
+      width: 200px;
+      height: 280px;
+    }
+  }
+
+  /* เอฟเฟกต์ตอนเอาเมาส์ชี้ (หันหน้าตรง + ขยายขึ้นนิดนึง) */
+  .group:hover .book {
+    transform: perspective(1000px) rotateY(0deg) scale(1.05);
+  }
+
+  /* 1. สันกระดาษ (ด้านขวา) */
+  .book::before {
+    content: "";
+    position: absolute;
+    width: 25px; /* ความหนาของหนังสือ */
+    height: 98%; /* ลดความสูงลงนิดนึงให้ดูเนียน */
+    top: 1%;
+    right: -25px;
+    /* ไล่สีให้ดูเป็นริ้วกระดาษซ้อนกัน */
+    background: linear-gradient(
+      to right,
+      #e0e0e0 0%,
+      #f9f9f9 20%,
+      #e0e0e0 80%,
+      #cccccc 100%
+    );
+    transform-origin: left;
+    transform: rotateY(90deg);
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* 2. สันกระดาษ (ด้านล่าง) */
+  .book::after {
+    content: "";
+    position: absolute;
+    width: 98%;
+    height: 25px; /* ความหนาต้องเท่ากับด้านขวา */
+    left: 1%;
+    bottom: -25px;
+    /* ไล่สีให้สอดคล้องกับแสงเงา */
+    background: linear-gradient(
+      to bottom,
+      #cccccc 0%,
+      #e0e0e0 20%,
+      #cccccc 80%,
+      #b3b3b3 100%
+    );
+    transform-origin: top;
+    transform: rotateX(-90deg);
+    border-radius: 0 0 3px 3px;
+  }

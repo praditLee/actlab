@@ -1,7 +1,9 @@
 ---
-import { getCollection } from "astro:content";
-// นำเข้า Layout ของคุณ (เปลี่ยน path ให้ตรงกับโปรเจกต์จริง)
+import { getCollection, render } from "astro:content";
+
+// 1. นำเข้า Layout ทั้ง 2 แบบเตรียมรอไว้เลย
 import MainLayout from "../layouts/MainLayout.astro";
+import BookLayout from "../layouts/BookLayout.astro";
 
 export async function getStaticPaths() {
   const pageEntries = await getCollection("pages");
@@ -12,12 +14,30 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-import { render } from "astro:content";
 const { Content } = await render(entry);
+
+// 2. เช็คว่าไฟล์ Markdown นี้เลือก template อะไรมา
+const isBookLayout = entry.data.template === "book";
 ---
 
-<MainLayout title={entry.data.title}>
-  <article class="prose max-w-4xl mx-auto py-10">
-    <Content />
-  </article>
-</MainLayout>
+{
+  isBookLayout ? (
+    <BookLayout
+      title={entry.data.title}
+      description={entry.data.description}
+      coverImage={entry.data.coverImage}
+      date={entry.data.date}
+      readlink={entry.data.readlink}
+    >
+      <article class="prose max-w-4xl mx-auto py-10">
+        <Content />
+      </article>
+    </BookLayout>
+  ) : (
+    <MainLayout title={entry.data.title} description={entry.data.description}>
+      <article class="prose max-w-4xl mx-auto py-10">
+        <Content />
+      </article>
+    </MainLayout>
+  )
+}

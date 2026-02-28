@@ -10,110 +10,226 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 const posts = (await getCollection("blog")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
+
+const allCategories = [
+  "ทั้งหมด",
+  ...new Set(posts.flatMap((post) => post.data.categories || ["ทั่วไป"])),
+];
+
+// ✨ 1. สร้าง Dictionary สำหรับแปลภาษา (Mapping)
+// ถ้าในอนาคตมีหมวดหมู่เพิ่ม ก็มาพิมพ์จับคู่ตรงนี้ได้เลยครับ
+const categoryMap: Record<string, string> = {
+  knowledge: "ความรู้",
+  "network-org": "การจัดตั้งเครือข่าย",
+  "group-formation": "การจัดตั้งกลุ่ม",
+  "action-design": "ออกแบบปฏิบัติการ",
+  "communicate-action": "ปฏิบัติการสื่อสาร",
+  security: "ความปลอดภัย",
+  heal: "การเยียวยา",
+  tiptechnic: "เทคนิคและเคล็ดลับ",
+  "direct-action": "ปฏิบัติการท้าทายซึ่งหน้า",
+  ทั้งหมด: "ทั้งหมด", // เผื่อปุ่มแรก
+  ทั่วไป: "ทั่วไป",
+};
+
+// ✨ 2. ฟังก์ชันตัวช่วย: ถ้าเจอคำศัพท์ในดิกชินนารีให้แปล ถ้าไม่เจอให้โชว์คำเดิมไปก่อน
+const getThaiCategory = (enCategory: string) => {
+  return categoryMap[enCategory] || enCategory;
+};
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="th">
   <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-    <style>
-      main {
-        width: 960px;
-      }
-      ul {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2rem;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      ul li {
-        width: calc(50% - 1rem);
-      }
-      ul li * {
-        text-decoration: none;
-        transition: 0.2s ease;
-      }
-      ul li:first-child {
-        width: 100%;
-        margin-bottom: 1rem;
-        text-align: center;
-      }
-      ul li:first-child img {
-        width: 100%;
-      }
-      ul li:first-child .title {
-        font-size: 2.369rem;
-      }
-      ul li img {
-        margin-bottom: 0.5rem;
-        border-radius: 12px;
-      }
-      ul li a {
-        display: block;
-      }
-      .title {
-        margin: 0;
-        color: rgb(var(--black));
-        line-height: 1;
-      }
-      .date {
-        margin: 0;
-        color: rgb(var(--gray));
-      }
-      ul li a:hover h4,
-      ul li a:hover .date {
-        color: rgb(var(--accent));
-      }
-      ul a:hover img {
-        box-shadow: var(--box-shadow);
-      }
-      @media (max-width: 720px) {
-        ul {
-          gap: 0.5em;
-        }
-        ul li {
-          width: 100%;
-          text-align: center;
-        }
-        ul li:first-child {
-          margin-bottom: 0;
-        }
-        ul li:first-child .title {
-          font-size: 1.563em;
-        }
-      }
-    </style>
+    <BaseHead
+      title={`บล็อกทั้งหมด | ${SITE_TITLE}`}
+      description={SITE_DESCRIPTION}
+    />
   </head>
-  <body>
+  <body class="bg-gray-50 text-gray-900 font-sans">
     <Header />
-    <main>
-      <section>
-        <ul>
-          {
-            posts.map((post) => (
-              <li>
-                <a href={`/blog/${post.id}/`}>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-screen">
+      <div class="h-10 w-full"></div>
+      <div class="text-center mb-12">
+        <h1
+          class="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4"
+        >
+          บทความ
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          อัปเดตความรู้ เครื่องมือ และเรื่องราวการเคลื่อนไหวทางสังคมจาก Act Lab
+        </p>
+      </div>
+
+      <div
+        class="flex flex-wrap justify-center gap-3 mb-12"
+        id="filter-container"
+      >
+        {
+          allCategories.map((category, index) => (
+            <button
+              data-category={category}
+              class={`filter-btn px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 shadow-sm border ${
+                index === 0
+                  ? "bg-gray-900 text-white border-gray-900 hover:shadow-md hover:text-white"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:cursor-pointer hover:scale-[1.03] hover:shadow-md"
+              }`}
+            >
+              {/* ✨ 3. แสดงผลคำแปลบนปุ่ม */}
+              {getThaiCategory(category)}
+            </button>
+          ))
+        }
+      </div>
+
+      <div
+        class="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6"
+        id="masonry-grid"
+      >
+        {
+          posts.map((post) => {
+            const postCategories = post.data.categories || ["ทั่วไป"];
+
+            return (
+              <article
+                class="post-card break-inside-avoid bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-500 group border border-gray-100"
+                data-categories={postCategories.join(",")}
+              >
+                <a href={`/blog/${post.id}/`} class="block">
                   {post.data.coverImage && (
-                    <Image
-                      width={720}
-                      height={360}
-                      src={post.data.coverImage}
-                      alt=""
-                    />
+                    <div class="relative overflow-hidden">
+                      <Image
+                        width={720}
+                        height={720}
+                        src={post.data.coverImage}
+                        alt={post.data.title || ""}
+                        class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                      <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+                        {postCategories.map((cat) => (
+                          <span class="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">
+                            {/* ✨ 4. แสดงผลคำแปลบนป้าย (Tags) บนรูปปก */}
+                            {getThaiCategory(cat)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
-                  <h4 class="title">{post.data.title}</h4>
-                  <p class="date">
-                    <FormattedDate date={post.data.date} />
-                  </p>
+
+                  <div class="p-6">
+                    <p class="text-xs font-medium text-gray-400 mb-3 flex items-center gap-1.5">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <FormattedDate date={post.data.date} />
+                    </p>
+                    <h4 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-3">
+                      {post.data.title}
+                    </h4>
+                    {post.data.description && (
+                      <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed">
+                        {post.data.description}
+                      </p>
+                    )}
+                  </div>
                 </a>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+              </article>
+            );
+          })
+        }
+      </div>
+
+      <div id="no-results" class="hidden text-center py-20 text-gray-500">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-16 w-16 mx-auto text-gray-300 mb-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path></svg
+        >
+        <p class="text-xl font-medium">ไม่พบบทความในหมวดหมู่นี้</p>
+      </div>
     </main>
+    <div class="h-16"></div>
     <Footer />
+
+    <script>
+      const buttons = document.querySelectorAll(".filter-btn");
+      const cards = document.querySelectorAll(".post-card");
+      const noResults = document.getElementById("no-results");
+
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          // สคริปต์ยังคงใช้คำภาษาอังกฤษ (dataset.category) ในการทำงาน
+          const selectedCategory = (button as HTMLElement).dataset.category;
+
+          buttons.forEach((btn) => {
+            btn.classList.remove(
+              "bg-gray-900",
+              "text-white",
+              "border-gray-900",
+            );
+            btn.classList.add("bg-white", "text-gray-600", "border-gray-200");
+          });
+          button.classList.remove(
+            "bg-white",
+            "text-gray-600",
+            "border-gray-200",
+          );
+          button.classList.add("bg-gray-900", "text-white", "border-gray-900");
+
+          let visibleCount = 0;
+          cards.forEach((card) => {
+            const cardCategories =
+              (card as HTMLElement).dataset.categories?.split(",") || [];
+
+            if (
+              selectedCategory === "ทั้งหมด" ||
+              cardCategories.includes(selectedCategory!)
+            ) {
+              (card as HTMLElement).style.display = "block";
+              card.animate(
+                [
+                  { opacity: 0, transform: "scale(0.95) translateY(10px)" },
+                  { opacity: 1, transform: "scale(1) translateY(0)" },
+                ],
+                { duration: 300, easing: "ease-out" },
+              );
+              visibleCount++;
+            } else {
+              (card as HTMLElement).style.display = "none";
+            }
+          });
+
+          if (visibleCount === 0) {
+            noResults?.classList.remove("hidden");
+          } else {
+            noResults?.classList.add("hidden");
+          }
+        });
+      });
+    </script>
   </body>
 </html>
+
+<style>
+  @reference "tailwindcss";
+</style>

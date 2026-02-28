@@ -1,0 +1,227 @@
+---
+import { Image } from "astro:assets";
+
+// =========================================
+// ส่วนที่ 1: ข้อมูลคำคมและรูปภาพ (10 ชุด)
+// =========================================
+const allQuotes = [
+  {
+    quote:
+      "อย่าสงสัยเลยว่าคนกลุ่มเล็กๆ ที่มีความมุ่งมั่นจะเปลี่ยนแปลงโลกได้หรือไม่ เพราะในความเป็นจริงแล้ว สิ่งที่เคยเปลี่ยนแปลงโลกได้ ก็มีแต่คนกลุ่มเล็กๆ เช่นนั้นเสมอมา",
+    author: "Margaret Mead (นักมานุษยวิทยา)",
+    // รูปภาพ Placeholder (เปลี่ยนเป็นรูปของคุณเองได้)
+    image:
+      "https://images.unsplash.com/photo-1464822759023-d62667f35824?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote: "จงเป็น 'การเปลี่ยนแปลง' ที่คุณอยากเห็นในโลกใบนี้",
+    author: "Mahatma Gandhi (ผู้นำการเคลื่อนไหวเพื่ออิสรภาพ)",
+    image:
+      "https://images.unsplash.com/photo-1504470695779-75300268aa0e?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote:
+      "ความมืดไม่อาจขับไล่ความมืดได้ มีเพียงแสงสว่างเท่านั้นที่ทำได้ ความเกลียดชังไม่อาจขับไล่ความเกลียดชังได้ มีเพียงความรักเท่านั้นที่ทำได้",
+    author: "Martin Luther King Jr. (นักต่อสู้เพื่อสิทธิพลเมือง)",
+    image:
+      "https://images.unsplash.com/photo-1509024644558-2f56ce76c490?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote: "มันดูเหมือนเป็นไปไม่ได้เสมอ จนกระทั่งมันสำเร็จลง",
+    author: "Nelson Mandela (อดีตประธานาธิบดีแอฟริกาใต้)",
+    image:
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote:
+      "อำนาจไม่ได้อยู่ในมือผู้กดขี่ แต่อยู่ในมือผู้ถูกกดขี่ที่ตื่นรู้และปฏิเสธที่จะยอมจำนน",
+    author: "ไม่ทราบนาม (นักกิจกรรมทางสังคม)",
+    image:
+      "https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote:
+      "เราไม่ได้สืบทอดโลกใบนี้มาจากบรรพบุรุษ แต่เรายืมมันมาจากลูกหลานของเรา",
+    author: "สุภาษิตชนเผ่าพื้นเมืองอเมริกัน",
+    image:
+      "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote: "การกระทำที่เล็กน้อยที่สุด ยังดีกว่าความตั้งใจที่ยิ่งใหญ่ที่สุด",
+    author: "John Burroughs (นักธรรมชาติวิทยา)",
+    image:
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote:
+      "เมื่อใดที่ประชาชนรวมตัวกัน เมื่อนั้นอำนาจจะกลับคืนสู่ที่ที่มันควรอยู่",
+    author: "Activist Laboratory Thailand",
+    image:
+      "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote:
+      "เมล็ดพันธุ์ที่ถูกฝังไว้ใต้ดินอาจดูเหมือนตายจากไป แต่ที่จริงแล้ว มันกำลังสะสมพลังเพื่อรอวันที่ฝนแรกมาเยือน",
+    author: "ไม่ทราบนาม",
+    image:
+      "https://images.unsplash.com/photo-1518105447053-535d5b76d995?auto=format&fit=crop&q=80&w=1920",
+  },
+  {
+    quote:
+      "ความกล้าหาญไม่ใช่การปราศจากความกลัว แต่คือการตัดสินใจว่ามีบางสิ่งสำคัญยิ่งกว่าความกลัว",
+    author: "Ambrose Redmoon (นักเขียน)",
+    image:
+      "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=1920",
+  },
+];
+
+// =========================================
+// ส่วนที่ 2: ลอจิกการสุ่มเลือก (Server-side)
+// =========================================
+// 1. สับเปลี่ยนลำดับอาร์เรย์แบบสุ่ม (Fisher-Yates Shuffle แบบย่อ)
+const shuffled = [...allQuotes].sort(() => 0.5 - Math.random());
+// 2. เลือกมา 3 อันแรก
+const selectedSlides = shuffled.slice(0, 3);
+---
+
+<section
+  id="inspiration-slideshow"
+  class="relative w-full h-[500px] md:h-[600px] overflow-hidden bg-gray-900"
+  aria-live="polite"
+>
+  {
+    selectedSlides.map((slide, index) => (
+      // แต่ละ Slide วางซ้อนกันด้วย absolute inset-0
+      // data-active="true" เฉพาะสไลด์แรก เพื่อให้แสดงผลทันทีที่โหลด
+      <div
+        class="slide absolute inset-0 w-full h-full flex items-center justify-center transition-opacity duration-1000 ease-in-out opacity-0 data-[active=true]:opacity-100 data-[active=true]:z-10"
+        data-index={index}
+        data-active={index === 0 ? "true" : "false"}
+      >
+        <div class="slide-image-container absolute inset-0 z-0 transition-transform duration-[5000ms] ease-out scale-105 data-[active=true]:scale-100">
+          <img
+            src={slide.image}
+            alt="Inspiration background"
+            class="w-full h-full object-cover filter brightness-[0.4]"
+          />
+        </div>
+
+        <div class="slide-content relative z-20 max-w-4xl mx-auto px-6 text-center">
+          <blockquote class="quote-text text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-wide mb-6 opacity-0 translate-y-8 transition-all duration-1000 delay-300 ease-out font-heading">
+            "{slide.quote}"
+          </blockquote>
+          <cite class="author-text block text-lg md:text-xl text-gray-300 font-medium opacity-0 translate-y-4 transition-all duration-1000 delay-700 ease-out not-italic">
+            — {slide.author}
+          </cite>
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  /* Custom CSS สำหรับ Animation State ต่างๆ
+    เราใช้ Tailwind reference เพื่อดึง config มาใช้ได้
+  */
+  @reference "tailwindcss";
+
+  /* --- State: Active (สไลด์กำลังแสดงผล) --- */
+  /* เมื่อสไลด์มี attribute data-active="true" */
+  .slide[data-active="true"] {
+    /* ตัว Slide หลักจะถูก Tailwind จัดการ opacity: 100 */
+  }
+
+  /* เมื่อสไลด์ Active ให้ตัวหนังสือค่อยๆ เลื่อนขึ้นและปรากฏ */
+  .slide[data-active="true"] .quote-text,
+  .slide[data-active="true"] .author-text {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* --- State: Exiting (สไลด์กำลังจะจากไป) --- */
+  /* นี่คือหัวใจสำคัญของโจทย์นี้! 
+    เราสร้างคลาส .is-exiting เพื่อสั่งให้ตัวหนังสือหายไป "ก่อน" ที่รูปภาพจะหายไป
+  */
+  .slide.is-exiting .quote-text,
+  .slide.is-exiting .author-text {
+    @apply opacity-0 -translate-y-4; /* หายไปและเลื่อนขึ้นนิดหน่อย */
+    transition-delay: 0ms !important; /* ยกเลิก delay เพื่อให้เริ่มหายไปทันที */
+    transition-duration: 800ms; /* หายไปเร็วกว่าตอนมา */
+  }
+
+  /* รูปภาพในขณะที่ text กำลังหายไป ให้ค่อยๆ ซูมออกนิดๆ */
+  .slide.is-exiting .slide-image-container {
+    @apply scale-105;
+    transition-duration: 2000ms;
+  }
+
+  /* (Optional) เพิ่มฟอนต์หัวข้อให้ดูมีพลัง (ถ้าโปรเจกต์คุณมีฟอนต์อื่นก็ปรับแก้ได้) */
+  .font-heading {
+    font-family:
+      "Anuphan Variable",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    /* หรือใช้ฟอนต์หลักของเว็บคุณ */
+  }
+</style>
+
+<script>
+  // =========================================
+  // ส่วนที่ 3: JavaScript ควบคุมจังหวะเวลา (Client-side)
+  // =========================================
+
+  function initSlideshow() {
+    const container = document.getElementById("inspiration-slideshow");
+    if (!container) return;
+
+    const slides = Array.from(
+      container.querySelectorAll(".slide"),
+    ) as HTMLElement[];
+    if (slides.length === 0) return;
+
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+
+    // ตั้งค่าเวลา (หน่วยมิลลิวินาที)
+    const DISPLAY_DURATION = 6000; // เวลาที่โชว์ข้อความนิ่งๆ (6 วินาที)
+    const TEXT_EXIT_DURATION = 1000; // เวลาที่รอให้ข้อความหายไปก่อนจะเปลี่ยนรูป (1 วินาที)
+    const TOTAL_CYCLE_TIME = DISPLAY_DURATION + TEXT_EXIT_DURATION; // รอบเวลาทั้งหมดต่อ 1 สไลด์
+
+    function nextSlide() {
+      const currentSlide = slides[currentIndex];
+      currentIndex = (currentIndex + 1) % totalSlides; // วนลูปกลับไป 0 เมื่อถึงสไลด์สุดท้าย
+      const nextSlideEl = slides[currentIndex];
+
+      // --- Step 1: เริ่มกระบวนการ "ขาออก" (Exiting Phase) ---
+      // เพิ่มคลาส .is-exiting เพื่อสั่งให้ CSS ทำให้ตัวหนังสือจางหายไปก่อน
+      currentSlide.classList.add("is-exiting");
+
+      // --- Step 2: รอให้ตัวหนังสือหายไป แล้วค่อยเปลี่ยนสไลด์ (Transition Phase) ---
+      setTimeout(() => {
+        // 2.1 เอาสถานะ Active และ Exiting ออกจากสไลด์เดิม (รูปภาพจะเริ่มจางหายไปตาม CSS transition ของตัวแม่ .slide)
+        currentSlide.setAttribute("data-active", "false");
+        currentSlide.classList.remove("is-exiting");
+
+        // 2.2 ตั้งสไลด์ใหม่ให้เป็น Active (รูปใหม่ค่อยๆ มา, ตัวหนังสือใหม่ค่อยๆ มา)
+        nextSlideEl.setAttribute("data-active", "true");
+      }, TEXT_EXIT_DURATION); // รอตามเวลาที่ตั้งไว้ให้ตัวหนังสือหายไป
+    }
+
+    // เริ่มต้น Loop
+    // ใช้ setInterval เพื่อเรียกฟังก์ชัน nextSlide ไปเรื่อยๆ ตามเวลาที่กำหนด
+    const slideshowInterval = setInterval(nextSlide, TOTAL_CYCLE_TIME);
+
+    // (Optional) หยุด Slideshow เมื่อคนเอาเมาส์ไปชี้ เพื่อให้อ่านทัน
+    container.addEventListener("mouseenter", () =>
+      clearInterval(slideshowInterval),
+    );
+    // (Optional) เล่นต่อเมื่อเมาส์ออก (อาจจะต้องเขียน logic เพิ่มถ้าต้องการให้เนียน)
+  }
+
+  // เรียกใช้งานเมื่อโหลดหน้าเว็บ
+  document.addEventListener("astro:page-load", initSlideshow);
+  // Fallback สำหรับกรณีที่ไม่ใช้ View Transitions
+  if (!document.querySelector("[data-astro-transition-persist]")) {
+    initSlideshow();
+  }
+</script>

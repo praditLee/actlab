@@ -1,0 +1,82 @@
+---
+// src/pages/bookshelf.astro
+import MainLayout from "../layouts/MainLayout.astro";
+
+// สมมติข้อมูลหนังสือ (คุณสามารถปรับไปใช้ getCollection ดึงข้อมูลจาก Markdown ได้)
+const books = [
+  {
+    title: "ประชาชนสร้างกติกา",
+    cover: "src/assets/cover_peopleMakeRule.webp",
+    url: "/people_make_rules",
+  },
+  {
+    title: "คู่มือนักสื่อสารปฏิบัติการ",
+    cover: "src/assets/Commu-act-cover.png",
+    url: "/communicate-act-handbook",
+  },
+  {
+    title: "คู่มือทำงานจัดตั้ง",
+    cover: "src/assets/organize-cover.png",
+    url: "/organize-handbook",
+  },
+  {
+    title: "คู่มือจัดตั้ง 2",
+    cover: "src/assets/Cover_organize02.png",
+    url: "/organize-hb-2",
+  },
+  {
+    title: "คู่มือจัดตั้ง 3",
+    cover: "src/assets/cover-org-hb3.jpg",
+    url: "/organize-hb-3",
+  },
+  {
+    title: "คู่มือแกนนอน",
+    cover: "src/assets/gannon_handbook.jpg",
+    url: "/read/gannon_guidebook",
+  },
+  {
+    title: "สามัญชนเปลี่ยนโลก",
+    cover: "src/assets/commons_changeworld.jpg",
+    url: "/read/communer_change",
+  },
+];
+---
+
+<MainLayout
+  title="แนะนำหนังสือ"
+  description="รวม E-Book คู่มือการจัดตั้งเครือข่ายและอื่นๆ ที่น่าสนใจ"
+>
+  <div class="max-w-6xl mx-auto px-8 min-h-screen">
+    <div class="text-center mb-20">
+      <p class="text-gray-500 text-lg">
+        คลิกที่เล่มที่ต้องการเพื่อเปิดอ่าน E-Book
+      </p>
+    </div>
+
+    <div
+      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16"
+    >
+      {
+        books.map((book) => (
+          <div class="flex flex-col items-center relative shelf-container">
+            <a href={book.url} class="block group z-10 mb-6">
+              <div class="book shadow-[10px_20px_30px_rgba(0,0,0,0.3)] group-hover:shadow-[0_25px_40px_rgba(0,0,0,0.2)]">
+                <img
+                  src={book.cover}
+                  alt={book.title}
+                  class="w-full h-full object-cover rounded-r-md rounded-l-[3px] shadow-[inset_4px_0_10px_rgba(0,0,0,0.1)]"
+                />
+              </div>
+            </a>
+
+            <div class="absolute bottom-[4.5rem] left-0 w-full h-4 bg-[#d4c5b9] rounded-sm shadow-[0_4px_6px_rgba(0,0,0,0.1)] -z-10 border-b-2 border-[#b8a594]" />
+
+            <h4 class="mt-12 text-center text-gray-800 px-2 line-clamp-2">
+              {book.title}
+            </h4>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</MainLayout>

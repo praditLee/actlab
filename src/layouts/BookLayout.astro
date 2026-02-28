@@ -1,0 +1,324 @@
+---
+import { Image } from "astro:assets";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  coverImage?: string;
+  date?: string;
+  updatedDate?: string;
+  readlink?: string;
+}
+
+const { title, description, coverImage, date, updatedDate, readlink } =
+  Astro.props;
+---
+
+<html lang="th">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+
+  <body class="bg-gray-50">
+    <Header />
+
+    <main class="w-full">
+      <article
+        class="relative w-full max-w-7xl mx-auto flex flex-col md:flex-row md:items-start md:gap-12 md:px-8"
+      >
+        <div
+          class="w-full md:w-5/12 sticky top-20 md:top-32 z-0 pt-10 pb-16 px-6 md:px-0 flex flex-col items-center md:items-start"
+        >
+          <h1
+            class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight text-gray-900 mb-6 text-center md:text-left"
+          >
+            {title}
+          </h1>
+
+          {
+            description && (
+              <p class="max-w-xl text-lg text-gray-600 my-8 text-center md:text-left">
+                {description}
+              </p>
+            )
+          }
+
+          {
+            coverImage && (
+              <div class="w-full max-w-sm mt-6 md:max-w-full">
+                <a
+                  href={readlink}
+                  target="_blank"
+                  class="block group z-10 mb-6"
+                >
+                  <div class="bookpage shadow-[10px_20px_30px_rgba(0,0,0,0.3)] group-hover:shadow-[0_25px_40px_rgba(0,0,0,0.2)]">
+                    <Image
+                      width={800}
+                      height={800}
+                      src={coverImage}
+                      alt={title || "Cover Image"}
+                      class="w-full h-full object-cover rounded-r-md rounded-l-[3px] shadow-[inset_4px_0_10px_rgba(0,0,0,0.1)]"
+                    />
+                  </div>
+                </a>
+              </div>
+            )
+          }
+        </div>
+
+        <div
+          class="w-full md:w-7/12 relative z-10 bg-white md:bg-transparent min-h-screen rounded-t-[0.5rem] md:rounded-none shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.1)] md:shadow-none pt-12 md:pt-32 px-6 md:px-0 pb-24"
+        >
+          <div class="prose prose-lg max-w-none prose-slate mx-auto">
+            <slot />
+          </div>
+          {
+            readlink && (
+              <div class="w-full flex justify-center md:justify-start">
+                <a
+                  href={readlink}
+                  target="_blank"
+                  class="px-8 py-3 bg-gray-900 !text-white text-lg font-bold rounded-full hover:bg-gray-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                  อ่าน
+                </a>
+              </div>
+            )
+          }
+        </div>
+      </article>
+    </main>
+
+    <div class="relative z-20 bg-white border-t border-gray-200">
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style>
+  @reference "tailwindcss";
+
+  /* เจาะจงไปที่ Table ใน Markdown Content */
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 2rem 0;
+    font-size: 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  .prose :global(thead th) {
+    background-color: #f9fafb;
+    color: #111827;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+
+  .prose :global(tbody td) {
+    padding: 12px 16px;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+  }
+
+  .prose :global(tbody tr:last-child td) {
+    border-bottom: none;
+  }
+
+  .prose :global(tbody tr:hover) {
+    background-color: #f9fafb;
+    transition: background-color 0.2s;
+  }
+
+  .prose :global(table) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 640px) {
+    .prose :global(table) {
+      display: table;
+      white-space: normal;
+    }
+  }
+
+  /* --- Unordered List แบบติ๊กถูก (Checklist Style) --- */
+  .prose :global(ul) {
+    list-style: none;
+    padding-left: 0;
+    margin: 2rem 0;
+  }
+
+  .prose :global(ul > li) {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+    color: #4b5563;
+  }
+
+  .prose :global(ul > li::before) {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4em;
+    width: 1.25rem;
+    height: 1.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  /* --- Ordered List แบบวงกลม (Step Badge) --- */
+  .prose :global(ol) {
+    list-style: none;
+    counter-reset: step-counter;
+    padding-left: 0;
+    margin: 2rem 0;
+  }
+
+  .prose :global(ol > li) {
+    position: relative;
+    counter-increment: step-counter;
+    padding-left: 3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose :global(ul ul),
+  .prose :global(ol ul),
+  .prose :global(ul ol),
+  .prose :global(ol ol) {
+    margin: 0.5rem 0 0.5rem 0;
+    padding-left: 0;
+  }
+
+  .prose :global(li > ul > li),
+  .prose :global(li > ol > li) {
+    padding-left: 2.2rem;
+    font-size: 0.95em;
+    color: #6b7280;
+  }
+
+  .prose :global(ul ul > li::before) {
+    background-color: transparent;
+    border: 1.5px solid #3b82f6;
+    box-shadow: none;
+    width: 5px;
+    height: 5px;
+  }
+
+  .prose :global(ol > li::before) {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: -0.1em;
+    width: 2rem;
+    height: 2rem;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* =========================================
+     CSS สำหรับเนรมิตหนังสือ 3 มิติ
+  ========================================= */
+
+  /* กำหนดขนาดพื้นฐานของหนังสือ (ปรับได้ตามสัดส่วนรูปปกของคุณ) */
+  .bookpage {
+    position: relative;
+    width: 320px;
+    height: auto;
+    transform-style: preserve-3d; /* สำคัญมาก: เปิดโหมด 3D */
+    /* เอียงหนังสือไปด้านหลัง 25 องศา เพื่อโชว์ความหนาด้านขวา */
+    transform: perspective(1000px) rotateY(-25deg) translateX(10px) scale(0.95);
+    transition:
+      transform 0.4s ease,
+      box-shadow 0.4s ease;
+  }
+
+  /* Responsive สำหรับจอใหญ่ */
+  @media (min-width: 768px) {
+    .bookpage {
+      width: 320px;
+      height: auto;
+    }
+  }
+
+  /* เอฟเฟกต์ตอนเอาเมาส์ชี้ (หันหน้าตรง + ขยายขึ้นนิดนึง) */
+  .group:hover .bookpage {
+    transform: perspective(1000px) rotateY(0deg) translateX(20px) scale(1.05);
+  }
+
+  /* 1. สันกระดาษ (ด้านขวา) */
+  .bookpage::before {
+    content: "";
+    position: absolute;
+    width: 25px; /* ความหนาของหนังสือ */
+    height: 98%; /* ลดความสูงลงนิดนึงให้ดูเนียน */
+    top: 1%;
+    right: -25px;
+    /* ไล่สีให้ดูเป็นริ้วกระดาษซ้อนกัน */
+    background: linear-gradient(
+      to right,
+      #e0e0e0 0%,
+      #f9f9f9 20%,
+      #e0e0e0 80%,
+      #cccccc 100%
+    );
+    transform-origin: left;
+    transform: rotateY(90deg);
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* 2. สันกระดาษ (ด้านล่าง) */
+  .bookpage::after {
+    content: "";
+    position: absolute;
+    width: 98%;
+    height: 25px; /* ความหนาต้องเท่ากับด้านขวา */
+    left: 1%;
+    bottom: -25px;
+    /* ไล่สีให้สอดคล้องกับแสงเงา */
+    background: linear-gradient(
+      to bottom,
+      #cccccc 0%,
+      #e0e0e0 20%,
+      #cccccc 80%,
+      #b3b3b3 100%
+    );
+    transform-origin: top;
+    transform: rotateX(-90deg);
+    border-radius: 0 0 3px 3px;
+  }
+</style>

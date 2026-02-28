@@ -1,0 +1,24 @@
+---
+// src/pages/read/guidebook.astro
+import CustomPdfReader from "../../components/CustomPdfReader.astro";
+
+// ⚠️ อย่าลืมแก้ชื่อไฟล์ PDF ให้ตรงกับที่คุณมีในโฟลเดอร์ public/
+const pdfFile = "/ebooks/hb_constitution.pdf";
+---
+
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>อ่านประชาขนสร้างกติกา</title>
+  </head>
+  <body class="bg-gray-900 m-0 p-0 overflow-hidden">
+    <CustomPdfReader title="ประชาขนสร้างกติกา" pdfUrl={pdfFile} />
+  </body>
+</html>
+
+<style>
+  /* ⚠️ สำคัญมาก: เพื่อให้หน้านี้รู้จักคลาสของ Tailwind (สำหรับ Tailwind v4) */
+  @import "tailwindcss";
+</style>
