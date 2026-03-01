@@ -1,7 +1,9 @@
 ---
 title: "คู่มือแกนนอน"
 date: 2021-07-22
-coverImage: "gannon_handbook.jpg"
+coverImage: "../../assets/gannon_handbook.jpg"
+template: "book"
+readlink: "/read/gannon_guidebook"
 ---
 
 เปลี่ยนมวลชนเป็นผู้ปฏิบัติงาน เปลี่ยนสภากาแฟเป็นกลุ่มปฏิบัติการ

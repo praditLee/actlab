@@ -4,7 +4,7 @@ description: "กระบวนการเรียนรู้และกา
 date: 2022-05-18
 coverImage: "../../assets/Cover_organize02.png"
 template: "book"
-readlink: "/read/"
+readlink: "/read/organize2_guidebook"
 ---
 
 คำว่างานจัดตั้งมักถูกปฏิเสธในหมู่เสรีชน ด้วยมองว่าเป็นการเข้ามาครอบงำและชี้นำทางความคิดโดยเหล่ารุ่นพี่อาวุโสทำให้ไม่มีโอกาสคิดกระทำการใดได้อย่างอิสระ
