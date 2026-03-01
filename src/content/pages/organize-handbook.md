@@ -1,7 +1,7 @@
 ---
 title: "คู่มือทำงานจัดตั้ง"
 date: 2022-01-07
-coverImage: "../../assets/organize-cover.png"
+coverImage: "../../assets/Organize-cover.png"
 template: "book"
 readlink: "/read/organize1_guidebook"
 ---
