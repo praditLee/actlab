@@ -86,7 +86,7 @@ const selectedSlides = shuffled.slice(0, 3);
 
 <section
   id="inspiration-slideshow"
-  class="relative w-full h-[500px] md:h-[600px] overflow-hidden bg-gray-900"
+  class="relative w-full h-[250px] md:h-[350px] overflow-hidden bg-gray-900"
   aria-live="polite"
 >
   {
@@ -107,8 +107,8 @@ const selectedSlides = shuffled.slice(0, 3);
         </div>
 
         <div class="slide-content relative z-20 max-w-4xl mx-auto px-6 text-center">
-          <blockquote class="quote-text text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-wide mb-6 opacity-0 translate-y-8 transition-all duration-1000 delay-300 ease-out font-heading">
-            "{slide.quote}"
+          <blockquote class="quote-text text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight tracking-wide mb-2 opacity-0 translate-y-8 transition-all duration-1000 delay-300 ease-out font-heading">
+            {slide.quote}
           </blockquote>
           <cite class="author-text block text-lg md:text-xl text-gray-300 font-medium opacity-0 translate-y-4 transition-all duration-1000 delay-700 ease-out not-italic">
             — {slide.author}

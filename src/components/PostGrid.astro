@@ -4,47 +4,78 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import FormattedDate from "./FormattedDate.astro";
 
-// ✨ 1. กำหนด Props ที่ Component นี้สามารถรับได้
 interface Props {
-  categories?: string[]; // เลือกจากหมวดหมู่ (Array)
-  tags?: string[]; // เลือกจากแท็ก (Array)
-  slugs?: string[]; // เลือกเจาะจงบทความ (ใช้ชื่อไฟล์ .md)
-  limit?: number; // จำกัดจำนวนบทความที่จะแสดง
+  categories?: string[];
+  tags?: string[];
+  slugs?: string[];
+  limit?: number;
+  columns?: 2 | 3 | 4;
+  collection?: "blog" | "pages" | "all";
 }
 
-const { categories = [], tags = [], slugs = [], limit } = Astro.props;
+const {
+  categories = [],
+  tags = [],
+  slugs = [],
+  limit,
+  columns = 3,
+  collection = "all",
+} = Astro.props;
 
-// ✨ 2. ดึงข้อมูลบทความทั้งหมด
-const allPosts = await getCollection("blog");
+// ✨ สร้างตัวจับคู่เลขคอลัมน์ กับคลาสของ Tailwind
+const columnClasses = {
+  2: "lg:columns-2",
+  3: "lg:columns-3",
+  4: "lg:columns-4",
+};
 
-// ✨ 3. ระบบคัดกรองบทความ (Filter Logic)
+// ดึงคลาสมาใช้ ถ้าไม่ระบุ หรือใส่เลขแปลกๆ มา ให้โชว์ 3 คอลัมน์เป็นค่ามาตรฐาน
+const desktopColumns = columnClasses[columns] || columnClasses[3];
+
+// ✨ 1. กวาดข้อมูลมาจากทั้ง 2 โฟลเดอร์ (Blog และ Pages)
+const allBlogs = await getCollection("blog").catch(() => []);
+const allPages = await getCollection("pages").catch(() => []);
+let allPosts = [];
+if (collection === "blog") {
+  allPosts = allBlogs; // เอาเฉพาะ blog
+} else if (collection === "pages") {
+  allPosts = allPages; // เอาเฉพาะ pages
+} else {
+  allPosts = [...allBlogs, ...allPages]; // เอาทั้งหมดมารวมกัน
+}
+
+// ✨ 2. ระบบกรองข้อมูลที่แม่นยำขึ้น
 let filteredPosts = allPosts.filter((post) => {
-  // ถ้าไม่ส่งเงื่อนไขอะไรมาเลย ให้โชว์ทั้งหมด
   if (categories.length === 0 && tags.length === 0 && slugs.length === 0) {
     return true;
   }
 
   const postCategories = post.data.categories || [];
   const postTags = post.data.tags || [];
-  const postId = post.id; // ใน Astro 5 ใช้ .id แทน .slug
 
-  // เช็คว่าตรงกับเงื่อนไขใดเงื่อนไขหนึ่งหรือไม่
+  // ตัดนามสกุลไฟล์ออกให้เกลี้ยง (ป้องกันบั๊กชื่อไฟล์ตีกัน) เช่น my-post.md -> my-post
+  const cleanId = post.id.replace(/\.[^/.]+$/, "");
+
   const matchCategory = categories.some((c) => postCategories.includes(c));
   const matchTag = tags.some((t) => postTags.includes(t));
-  const matchSlug = slugs.includes(postId);
+
+  // เช็คทั้งแบบตัดและไม่ตัดนามสกุล เพื่อความชัวร์ 100%
+  const matchSlug = slugs.some((s) => s === cleanId || s === post.id);
 
   return matchCategory || matchTag || matchSlug;
 });
 
-// ✨ 4. เรียงลำดับจากใหม่ไปเก่า
-filteredPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+// ✨ 3. เรียงตามวันที่ (และป้องกันหน้าเว็บพัง กรณีที่บางหน้าเพจไม่ได้ใส่วันที่ไว้)
+filteredPosts.sort((a, b) => {
+  const dateA = a.data.date ? new Date(a.data.date).valueOf() : 0;
+  const dateB = b.data.date ? new Date(b.data.date).valueOf() : 0;
+  return dateB - dateA;
+});
 
-// ✨ 5. ตัดจำนวนตาม limit (ถ้ามีการระบุมา)
 if (limit) {
   filteredPosts = filteredPosts.slice(0, limit);
 }
 
-// พจนานุกรมแปลภาษาหมวดหมู่ (เหมือนในหน้า Blog)
 const categoryMap: Record<string, string> = {
   knowledge: "ความรู้",
   "network-org": "การจัดตั้งเครือข่าย",
@@ -63,14 +94,19 @@ const getThaiCategory = (enCategory: string) => {
 };
 ---
 
-<div class="columns-1 sm:columns-2 lg:columns-4 gap-6 space-y-6">
+<div class={`columns-1 sm:columns-2 ${desktopColumns} gap-6 space-y-6`}>
   {
     filteredPosts.length > 0 ? (
       filteredPosts.map((post) => {
         const postCategories = post.data.categories || ["ทั่วไป"];
+
+        // ✨ 4. สลับลิงก์อัตโนมัติ: ถ้าดึงมาจาก blog ให้ไป /blog/ ถ้าดึงมาจาก pages ให้ไป /
+        const postUrl =
+          post.collection === "blog" ? `/blog/${post.id}/` : `/${post.id}/`;
+
         return (
           <article class="post-card break-inside-avoid bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-500 group border border-gray-100">
-            <a href={`/blog/${post.id}/`} class="block">
+            <a href={postUrl} class="block">
               {post.data.coverImage && (
                 <div class="relative overflow-hidden">
                   <Image
@@ -91,27 +127,29 @@ const getThaiCategory = (enCategory: string) => {
               )}
 
               <div class="p-6">
+                {/* ตรวจสอบก่อนว่ามีวันที่ไหม ถึงจะแสดงผล */}
+                {post.data.date && (
+                  <p class="text-xs font-medium text-gray-400 mb-3 flex items-center gap-1.5">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <FormattedDate date={post.data.date} />
+                  </p>
+                )}
                 <h4 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-3">
                   {post.data.title}
                 </h4>
-                <p class="text-xs font-medium text-gray-400 mb-3 flex items-center gap-1.5">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <FormattedDate date={post.data.date} />
-                </p>
-
                 {post.data.description && (
                   <p class="text-gray-600 text-sm line-clamp-3 leading-relaxed">
                     {post.data.description}
