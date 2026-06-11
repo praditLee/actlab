@@ -36,4 +36,17 @@ const pages = defineCollection({
   	}),
 });
 
-export const collections = { blog, pages };
+const training = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/training" }),
+  schema: () => z.object({
+    courseId: z.string(),       // ✨ เพิ่มตัวนี้! รหัสคอร์ส (เช่น "culture-jamming")
+    courseName: z.string(),     // ✨ ชื่อคอร์สเต็ม (เอาไว้โชว์บนหน้าเว็บ)
+    topic: z.string(),          // ชื่อหัวข้อย่อย
+    title: z.string(),          // ชื่อบทเรียน
+    order: z.number(),          // ลำดับ
+    youtubeId: z.string(),      
+  }),
+});
+
+
+export const collections = { pages, blog, training };
