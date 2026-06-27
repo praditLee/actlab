@@ -5,6 +5,21 @@ import Header from "../components/Header.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import PostGrid from "../components/PostGrid.astro";
 import InspirationSlideshow from "../components/InspirationSlideshow.astro";
+import HeroSlider from "../components/HeroSlider.astro";
+const featuredPosts = [
+  {
+    image: "/images/whereArePeople.webp",
+    link: "https://action.actlabthailand.org/",
+  },
+  {
+    image: "/images/nasib.webp",
+    link: "https://www.facebook.com/photo?fbid=1064516522895983&set=a.167481202599524",
+  },
+  {
+    image: "/images/cultureJam.webp",
+    link: "/blog/culture-jamming/",
+  },
+];
 ---
 
 <!doctype html>
@@ -14,7 +29,9 @@ import InspirationSlideshow from "../components/InspirationSlideshow.astro";
   </head>
   <body class="bg-gray-50 text-gray-900 font-sans">
     <Header />
-    <InspirationSlideshow />
+    <!-- <InspirationSlideshow /> -->
+
+    <HeroSlider slides={featuredPosts} />
     <main
       class="max-w-7xl mx-auto mb-12 px-4 sm:px-6 lg:px-8 py-16 min-h-screen"
     >

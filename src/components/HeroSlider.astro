@@ -1,0 +1,124 @@
+---
+// src/components/HeroSlider.astro
+
+// 1. กำหนดโครงสร้างข้อมูลที่ Component นี้ต้องการรับเข้ามา
+interface Slide {
+  image: string;
+  title?: string;
+  link?: string; // ใส่ ? แปลว่าอาจจะมีหรือไม่มีลิงก์ก็ได้
+}
+
+interface Props {
+  slides: Slide[];
+}
+
+const { slides } = Astro.props;
+---
+
+<div
+  class="swiper hero-swiper max-w-7xl mx-auto w-full aspect-video md:aspect-[21/9] rounded-b-2xl rounded-t-none overflow-hidden shadow-lg relative group"
+>
+  <div class="swiper-wrapper h-full">
+    {
+      slides.map((slide) => (
+        <div class="swiper-slide h-full bg-gray-100 relative">
+          {slide.link ? (
+            <a href={slide.link} class="block w-full h-full relative">
+              <img
+                src={slide.image}
+                alt={slide.title || "ภาพหน้าปก"}
+                class="absolute inset-0 w-full h-full object-cover object-center"
+              />
+
+              {slide.title && (
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6 md:p-10">
+                  <h2 class="text-white text-2xl md:text-4xl font-bold leading-tight">
+                    {slide.title}
+                  </h2>
+                </div>
+              )}
+            </a>
+          ) : (
+            <div class="w-full h-full relative">
+              <img
+                src={slide.image}
+                alt={slide.title || "ภาพหน้าปก"}
+                class="absolute inset-0 w-full h-full object-cover object-center"
+              />
+
+              {slide.title && (
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6 md:p-10">
+                  <h2 class="text-white text-2xl md:text-4xl font-bold leading-tight">
+                    {slide.title}
+                  </h2>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="swiper-pagination"></div>
+
+  <div
+    class="swiper-button-prev hidden md:flex text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md"
+  >
+  </div>
+  <div
+    class="swiper-button-next hidden md:flex text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md"
+  >
+  </div>
+</div>
+
+<script>
+  // Import Swiper และ CSS ที่จำเป็น (Astro จะจัดการ Bundle ให้เอง)
+  import Swiper from "swiper";
+  import { Navigation, Pagination, Autoplay } from "swiper/modules";
+  import "swiper/css";
+  import "swiper/css/navigation";
+  import "swiper/css/pagination";
+
+  // สร้างฟังก์ชันเริ่มต้น Swiper
+  const initSwiper = () => {
+    new Swiper(".hero-swiper", {
+      modules: [Navigation, Pagination, Autoplay],
+      loop: true, // วนลูปรูปภาพ
+      grabCursor: true, // เปลี่ยนเคอร์เซอร์เป็นรูปมือตอนลาก
+      autoplay: {
+        delay: 5000, // เลื่อนอัตโนมัติทุก 5 วินาที
+        disableOnInteraction: false,
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+    });
+  };
+
+  // เรียกใช้ฟังก์ชัน
+  initSwiper();
+
+  // สำคัญมากสำหรับ Astro: ต้องบอกให้โหลดใหม่เมื่อเปลี่ยนหน้า (ถ้าเปิดใช้งาน View Transitions)
+  document.addEventListener("astro:page-load", initSwiper);
+</script>
+
+<style>
+  /* ปรับแต่งสีของจุดและปุ่มให้เข้ากับเว็บ (Tailwind แซงโค้ง CSS เดิมของ Swiper ยากนิดนึง เลยต้องเขียนตรงนี้ครับ) */
+  :global(.swiper-pagination-bullet-active) {
+    background-color: #ffffff !important;
+  }
+  :global(.swiper-pagination-bullet) {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+  :global(.swiper-button-next:after),
+  :global(.swiper-button-prev:after) {
+    font-size: 1.5rem !important;
+    font-weight: bold;
+  }
+</style>
