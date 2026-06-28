@@ -1,0 +1,383 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import YouTube from "../components/YouTube.astro";
+// 1. จำลองข้อมูล Frontmatter (เก็บข้อมูลบทเรียนต่างๆ)
+// แนะนำให้เก็บเฉพาะ YouTube ID (ตัวอักษรหลัง ?v=) เพื่อให้สร้างลิงก์ Embed ง่ายขึ้น
+const courseData = [
+  {
+    chapterTitle: "บทที่ 1 อะไรวะ ฟาสามัญ",
+    lessons: [
+      {
+        title: "ฟาสามัญคืออะไร มีบทบาทหน้าที่อะไร",
+        youtubeId: "ycau5e2fUiU",
+        duration: "03:56",
+      },
+      {
+        title: "หลักการแนวคิดพื้นฐานของฟาสามัญ",
+        youtubeId: "5yhhD9WVtIw",
+        duration: "04:20",
+      },
+      {
+        title: "ความแตกต่างระหว่างฟากับบทบาทหน้าที่อื่นๆ",
+        youtubeId: "Ym7SniQPL4w",
+        duration: "04:06",
+      },
+    ],
+  },
+  {
+    chapterTitle: "บทที่ 2 วงจรการศึกษาของประชาชน",
+    lessons: [
+      {
+        title: "วงจรการเรียนรู้แบบผ่านประสบการณ์ของ เดวิด โคล์บ",
+        youtubeId: "E29fylzBfeI",
+        duration: "01:44",
+      },
+      {
+        title: "หลักการศึกษาของประชาชน (Popular Education)",
+        youtubeId: "_uHc9BfHiK8",
+        duration: "03:08",
+      },
+      {
+        title: "ขั้นตอนที่ 1 เริ่มจากประสบการณ์ผู้เข้าร่วม",
+        youtubeId: "ojvcpQPHPts",
+        duration: "01:47",
+      },
+      {
+        title: "ขั้นตอนที่ 2 ค้นหาแบบแผน",
+        youtubeId: "jIbT-dKZ3gg",
+        duration: "01:12",
+      },
+      {
+        title: "ขั้นตอนที่ 3 เพิ่มเติมข้อมูลและสร้างความรู้ใหม่",
+        youtubeId: "vKtBF3ltxk4",
+        duration: "01:54",
+      },
+      {
+        title: "ขั้นตอนที่ 4 จัดกระบวนการ วางแผน และออกปฏิบัติการ",
+        youtubeId: "7zbyLj4wdao",
+        duration: "02:00",
+      },
+      {
+        title: "ขั้นตอนที่ 5 แปรสิ่งที่เรียนรู้ สู่ปฏิบัติการ",
+        youtubeId: "vbuaoyAeQEc",
+        duration: "02:14",
+      },
+      {
+        title: "เปรียบเทียบวงจรการเรียนรู้ทั้ง 2 แบบ",
+        youtubeId: "wVS1J5zWhS8",
+        duration: "01:41",
+      },
+    ],
+  },
+  {
+    chapterTitle: "บทที่ 3 จากทฤษฎีสนทนาสู่พื้นที่ปลอดภัย",
+    lessons: [
+      {
+        title: "พื้นที่ปลอดภัย โครงสร้างสังคมที่กดขี่ และวัฒนธรรมเงียบ",
+        youtubeId: "J-ZlMFzIRXk",
+        duration: "02:31",
+      },
+      {
+        title: "ทฤษฎีต่อต้านการสนทนา",
+        youtubeId: "I872w6rC6sM",
+        duration: "02:12",
+      },
+      {
+        title: "ทฤษฎีการสนทนา",
+        youtubeId: "-5DxXFYBbL4",
+        duration: "02:24",
+      },
+      {
+        title: "พื้นที่ปลอดภัย พื้นที่แห่งการสนทนา",
+        youtubeId: "kwCM_2kOcWg",
+        duration: "02:20",
+      },
+      {
+        title: "สร้างพื้นที่ปลอดภัยด้วยข้อตกลงร่วม",
+        youtubeId: "VzuzAHxkkMI",
+        duration: "05:07",
+      },
+      {
+        title: "พลวัติของพื้นที่ปลอดภัย",
+        youtubeId: "Uznx6ScfB08",
+        duration: "04:09",
+      },
+    ],
+  },
+  {
+    chapterTitle: "บทที่ 4 การฟัง 3 ระดับฉบับฟาสามัญ",
+    lessons: [
+      {
+        title: "การฟัง เครื่องมือสำคัญของฟาสามัญ",
+        youtubeId: "j3kzaZY65w4",
+        duration: "02:11",
+      },
+      {
+        title: "การฟังระดับที่ 1 ฟังเพื่อตัวเอง",
+        youtubeId: "1nSyC2SizFw",
+        duration: "03:50",
+      },
+      {
+        title: "การฟังระดับที่ 2 ฟังเพื่อผู้พูด",
+        youtubeId: "gqZeBnGfU8w",
+        duration: "04:33",
+      },
+      {
+        title: "การฟังระดับที่ 3 ฟังเพื่อกลุ่ม",
+        youtubeId: "rPnkFpXlDZI",
+        duration: "04:56",
+      },
+    ],
+  },
+  {
+    chapterTitle: "บทที่ 5 การตั้งคำถามเพื่อสร้างวัฒนธรรมการสนทนา",
+    lessons: [
+      {
+        title: "การตั้งคำถามเพื่อสร้างวัฒนธรรมการสนทนา",
+        youtubeId: "sZBFgEzkzOA",
+        duration: "03:00",
+      },
+      {
+        title: "คำถามปิดและคำถามเปิด",
+        youtubeId: "hN0HyLME5pk",
+        duration: "02:48",
+      },
+      {
+        title: "องค์ประกอบของคำถามปลายเปิด",
+        youtubeId: "dZE9DyOa2Ok",
+        duration: "02:15",
+      },
+      {
+        title: "ประเภทของคำถามปลายเปิด",
+        youtubeId: "Bkluv3CgY7Y",
+        duration: "03:35",
+      },
+      {
+        title: "การตั้งคำถามแบบมีวัตถุประสงค์",
+        youtubeId: "dAlIDIfO9pM",
+        duration: "01:58",
+      },
+      {
+        title: "ตัวอย่างโครงคำถาม",
+        youtubeId: "P7rU0ygMqJU",
+        duration: "03:13",
+      },
+    ],
+  },
+  {
+    chapterTitle: "บทที่ 6 ทักษะการทวนคำพูดในวงสนทนา",
+    lessons: [
+      {
+        title: "ทักษะการทวนคำพูดในวงสนทนา",
+        youtubeId: "qdBHl4r-D5c",
+        duration: "03:57",
+      },
+      {
+        title: "เทคนิคในการทวนคำพูด การพูดซ้ำ คำสำคัญ หมวดหมู่",
+        youtubeId: "QMp1_K7fovo",
+        duration: "03:12",
+      },
+      {
+        title: "การทวนโดยการสรุป",
+        youtubeId: "hAa2T16WqOM",
+        duration: "01:34",
+      },
+      {
+        title: "การทวนโดยการตีความ",
+        youtubeId: "n6lFqagUFr4",
+        duration: "02:05",
+      },
+      {
+        title: "การทวนโดยการสะท้อน",
+        youtubeId: "2IVFG-YUX5s",
+        duration: "01:44",
+      },
+      {
+        title: "การทวน เป็นการเปิดโอกาสให้ใช้อำนาจร่วม",
+        youtubeId: "YIKwrJ4n39o",
+        duration: "01:52",
+      },
+    ],
+  },
+];
+---
+
+<MainLayout title="คอร์สออนไลน์ - ฟาสามัญ">
+  <main class="max-w-4xl mx-auto px-4 py-10">
+    <header class="mb-10 text-center">
+      <p class="text-gray-600 max-w-4xl mx-auto pt-6">
+        การเอื้ออำนวยความสะดวก หรือ facilitate
+        เป็นทักษะที่ช่วยให้นักกิจกรรมสามารถสร้างการมีส่วนร่วมในการทำงานเป็นกลุ่มได้
+        การฟาฯ เป็นปฏิบัติการที่ท้าทายความสัมพันธ์ทางอำนาจแบบเดิมๆ
+        ที่ใช้อำนาจกดขี่ข่มเหงกัน มาเป็นการร่วมมือและเติบโตไปด้วยกัน
+        คอร์สนี้เน้นไปที่ทักษะต่างๆ ที่จำเป็นเช่นการฟัง การทวน การถาม
+        การสร้างพื้นที่ปลอดภัย โดยแบ่งเป็นตอนสั้นๆ เพื่อทำความเข้าใจทีละขั้นตอน
+        ผู้ที่สนใจเนื้อหาทางทฤษฎีสามารถเรียนรู้เพิ่มเติมจากหนังสือ
+        การศึกษาสำหรับผู้ถูกกดขี่ เขียนโดย เปาโล เฟรเร และในเว็บไซต์ แอคแลปได้
+      </p>
+    </header>
+    <YouTube id="VKIhE1yZl8Y" />
+    <div class="space-y-4 py-12">
+      <h4 class="text-xl font-bold text-gray-800 mb-6">
+        เนื้อหาของคอร์ส <span class="text-sm text-gray-600">
+          (1 ชั่วโมง 33 นาที)</span
+        >
+      </h4>
+
+      {
+        courseData.map((chapter, index) => (
+          // ใช้แท็ก details สำหรับทำ Accordion โดบ default เปิดอันแรกไว้ (open={index === 0})
+          <details
+            class="group border rounded-lg bg-white overflow-hidden shadow-sm"
+            open={index === 0}
+          >
+            {/* หัวข้อบท (ส่วนที่คลิกเพื่อเปิด/ปิด) */}
+            <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 bg-gray-50 hover:bg-gray-100 transition-colors">
+              <span class="font-semibold">{chapter.chapterTitle}</span>
+              {/* ไอคอนลูกศร จะหมุนเมื่อเปิดกล่อง (ใช้ class group-open ของ Tailwind) */}
+              <span class="transition group-open:rotate-180">
+                <svg
+                  fill="none"
+                  height="24"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="24"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </summary>
+
+            {/* รายการคลิปในบทนั้นๆ */}
+            <div class="border-t divide-y text-lg text-gray-700">
+              {chapter.lessons.map((lesson) => (
+                <div>
+                  {/* ปุ่มเปิด Modal จะเก็บ youtubeId ไว้ใน data attribute */}
+                  <button
+                    class="play-video-btn cursor-pointer w-full flex justify-between items-center p-4 hover:bg-orange-50 transition-colors text-left"
+                    data-youtube-id={lesson.youtubeId}
+                  >
+                    <div class="flex items-center gap-3  ">
+                      <svg
+                        class="w-5 h-5 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                          clip-rule="evenodd"
+                          fill-rule="evenodd"
+                        />
+                      </svg>
+                      <span>{lesson.title}</span>
+                    </div>
+                    <span class="text-gray-500 text-xs">{lesson.duration}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </main>
+
+  <div
+    id="video-modal"
+    class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300"
+  >
+    <div
+      class="relative w-full max-w-5xl aspect-video bg-black rounded-lg overflow-hidden shadow-2xl scale-95 transition-transform duration-300"
+      id="modal-content"
+    >
+      <button
+        id="close-modal-btn"
+        class="absolute top-2 right-2 text-white hover:text-orange-400 transition mb-2"
+      >
+        ✕
+      </button>
+
+      <iframe
+        id="youtube-iframe"
+        class="w-full h-full"
+        src=""
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      >
+      </iframe>
+    </div>
+  </div>
+</MainLayout>
+
+<script>
+  function setupVideoModal() {
+    const modal = document.getElementById("video-modal");
+    const modalContent = document.getElementById("modal-content");
+    const iframe = document.getElementById(
+      "youtube-iframe",
+    ) as HTMLIFrameElement;
+    const playButtons = document.querySelectorAll(".play-video-btn");
+    const closeBtn = document.getElementById("close-modal-btn");
+
+    // ฟังก์ชันเปิด Modal
+    const openModal = (youtubeId: string) => {
+      // ประกอบ URL ของ YouTube แบบ Embed พร้อมสั่งให้เล่นอัตโนมัติ (autoplay=1)
+      iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
+
+      modal?.classList.remove("hidden");
+      // ใช้ setTimeout เล็กน้อยเพื่อให้ transition ทำงานได้เนียน
+      setTimeout(() => {
+        modal?.classList.remove("opacity-0");
+        modalContent?.classList.remove("scale-95");
+      }, 10);
+      document.body.style.overflow = "hidden"; // ป้องกันหน้าเว็บเลื่อนตอนดูคลิป
+    };
+
+    // ฟังก์ชันปิด Modal
+    const closeModal = () => {
+      modal?.classList.add("opacity-0");
+      modalContent?.classList.add("scale-95");
+
+      setTimeout(() => {
+        modal?.classList.add("hidden");
+        iframe.src = ""; // เคลียร์ src เพื่อให้วิดีโอหยุดเล่นทันทีที่ปิด
+        document.body.style.overflow = "";
+      }, 300); // รอให้ transition เสร็จก่อนค่อยซ่อน
+    };
+
+    // ติดตั้ง Event Listener ให้กับปุ่มคลิปทั้งหมด
+    playButtons.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        const youtubeId = target.getAttribute("data-youtube-id");
+        if (youtubeId) openModal(youtubeId);
+      });
+    });
+
+    // ปิดเมื่อกดปุ่มปิด
+    closeBtn?.addEventListener("click", closeModal);
+
+    // ปิดเมื่อคลิกพื้นที่ว่างรอบๆ คลิป (Black overlay)
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // เรียกใช้ฟังก์ชันตอนโหลดหน้า
+  setupVideoModal();
+
+  // สำคัญสำหรับ Astro (ถ้าใช้ View Transitions) เพื่อให้สคริปต์รันใหม่เมื่อเปลี่ยนหน้า
+  document.addEventListener("astro:page-load", setupVideoModal);
+</script>
+
+<style>
+  /* ลบลูกศร default ของแท็ก details ในเบราว์เซอร์บางตัว (เช่น Safari) */
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
