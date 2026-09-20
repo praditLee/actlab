@@ -4,9 +4,8 @@ date: 2021-05-03
 categories:
   - "action-design"
 coverImage: "../../assets/hope-house-press-leather-diary-studio-PJzc7LOt2Ig-unsplash.jpg"
-download: "/downloads/action-plan-worksheet.pdf"
 related: "การวางแผนปฏิบัติการ"
-linkurl: "/blog/action-planing/"
+linkurl: "/blog/action-planning/"
 ---
 
 การทำใบวางแผนปฏิบัติการสำคัญอย่างมากที่ต้องทำไปตามลำดับ เริ่มจากส่วนแรกสุด อย่าเริ่มต้นที่ยุทธวิธี (เช่น เดินขบวน ปิดกั้น ชูป้าย ฯลฯ) เราเคยลองแล้วและไม่ได้ผลดีเท่าไร
